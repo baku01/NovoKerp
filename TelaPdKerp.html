@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html id="htmKerpTPK" class="theme-dark">
+  <head id="hedKerpTPK">
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width"
+    />
+    <title>KERP</title>
+    <link rel="stylesheet" href="css/estilo.css" />
+    <link rel="stylesheet" href="css/framework7.bundle.min.css" />
+    <link rel="stylesheet" href="css/framework7-icons.css" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link href="img/favicon.ico" rel="shortcut icon" />
+    <script>
+      function alteraCorTemaTPK() {
+        var loHdKerp = document.getElementById("hedKerpTPK");
+        var loBdKerp = document.getElementById("bdyKerpTPK");
+        var loObStyl = document.createElement("style");
+        var loThClor = {};
+
+        loObStyl.type = "text/css";
+
+        loThClor = app.utils.colorThemeCSSProperties(corTema());
+
+        //prettier-ignore
+        loObStyl.innerHTML = 
+          ".corTema { " +
+            "--f7-theme-color: " + loThClor["--f7-theme-color"] + "; " +
+            "--f7-theme-color-rgb: " + loThClor["--f7-theme-color-rgb"] + "; " +
+            "--f7-theme-color-shade: " + loThClor["--f7-theme-color-shade"] + "; " +
+            "--f7-theme-color-tint: " + loThClor["--f7-theme-color-tint"] + "; " +
+          "}";
+
+        loHdKerp.appendChild(loObStyl);
+
+        loBdKerp.className = "corTema";
+      }
+
+      function alteraEmpresaTPK() {
+        var loSlEmpr = document.getElementById("sltEmprTPK");
+        var loImEmpr = document.getElementById("imgEmprTPK");
+
+        //prettier-ignore
+        gcIdEmpr = loSlEmpr.value.toString().split("/")[0].trim().toUpperCase();
+
+        loImEmpr.src =
+          "http://www.atscs.com.br/images/empresas/" + gcIdEmpr + ".png";
+
+        pesquisaMenuTPK();
+        alteraCorTemaTPK();
+
+        redireciona("CntaDoUser.html", "CntaDoUser.html");
+      }
+
+      function helpDeskTPK() {
+        app.dialog.preloader("carregando...");
+
+        window.open(
+          "https://atscs.freshdesk.com/support/tickets/new/",
+          "_system"
+        );
+
+        setTimeout(function () {
+          app.dialog.close();
+        }, 3000);
+      }
+
+      function linkTPK(lcMnLink) {
+        app.dialog.preloader("carregando...");
+
+        window.open(lcMnLink, "_system");
+
+        setTimeout(function () {
+          app.dialog.close();
+        }, 3000);
+      }
+
+      function pesquisaOrcamentosTPK() {
+        var loSpOrca = document.getElementById("spnOrcaTPK");
+        var lcWkIsql = "";
+        var lmWkIsql = [];
+
+        //prettier-ignore
+        lmWkIsql = [
+          { pa_nome: "lcIdEmpr", pa_tipo: "VarChar", pa_valo: gcIdEmpr },
+          { pa_nome: "lcIdUser", pa_tipo: "VarChar", pa_valo: goCdUser.id_user.trim().toUpperCase() },
+          { pa_nome: "lnIdSitu", pa_tipo: "Int", pa_valo: 35 },
+          { pa_nome: "lnIdClie", pa_tipo: "Int", pa_valo: null },
+          { pa_nome: "ldPeDtde", pa_tipo: "SmallDatetime", pa_valo: null },
+          { pa_nome: "ldPeDtat", pa_tipo: "SmallDatetime", pa_valo: null },
+          { pa_nome: "lnIdVend", pa_tipo: "Int", pa_valo: null },
+          { pa_nome: "lnStAplc", pa_tipo: "Int", pa_valo: null }
+        ];
+
+        lcWkIsql = encodeURIComponent(JSON.stringify(lmWkIsql));
+
+        loSpOrca.className = "";
+        loSpOrca.innerHTML = "";
+
+        $.ajax({
+          url:
+            goCdUser.ws_http.trim() +
+            "chamadaProcedure?lcWkIsql=" +
+            lcWkIsql +
+            "&lcWkProc=pesquisaOrcamentos",
+          type: "GET",
+          dataType: "jsonp",
+
+          success: function (lmWkRsql) {
+            try {
+              if (lmWkRsql.length > 0) {
+                loSpOrca.className = "badge color-red";
+                loSpOrca.innerHTML = lmWkRsql.length.toString();
+              }
+            } catch (loApErro) {}
+          },
+          error: function (jqXHR, textStatus, err) {
+          },
+        });
+      }
+
+      function pesquisaNotificacoesTPK() {
+        var loSpNtfy = document.getElementById("spnNtfyTPK");
+        var lcWkIsql = "";
+        var lmWkIsql = [];
+
+        //prettier-ignore
+        lmWkIsql = [
+          { pa_nome: "lcIdUser", pa_tipo: "VarChar", pa_valo: goCdUser.id_user.trim().toUpperCase(), },
+          { pa_nome: "lcIdEmpr", pa_tipo: "VarChar", pa_valo: gcIdEmpr },
+          { pa_nome: "lnNoRead", pa_tipo: "Int", pa_valo: 0 },
+          { pa_nome: "ldNoDtde", pa_tipo: "SmallDatetime", pa_valo: null },
+          { pa_nome: "ldNoDtat", pa_tipo: "SmallDatetime", pa_valo: null },
+        ];
+
+        lcWkIsql = encodeURIComponent(JSON.stringify(lmWkIsql));
+
+        loSpNtfy.className = "";
+        loSpNtfy.innerHTML = "";
+
+        $.ajax({
+          url:
+            goCdUser.ws_http.trim() +
+            "chamadaProcedure?lcWkIsql=" +
+            lcWkIsql +
+            "&lcWkProc=pesquisaNotificacoes",
+          type: "GET",
+          dataType: "jsonp",
+
+          success: function (lmWkRsql) {
+            try {
+              if (lmWkRsql.length > 0) {
+                loSpNtfy.className = "badge color-red";
+                loSpNtfy.innerHTML = lmWkRsql.length.toString();
+              }
+            } catch (loApErro) {}
+          },
+          error: function (jqXHR, textStatus, err) {},
+        });
+      }
+
+      function pesquisaMenuTPK() {
+        var loUlMenu = document.getElementById("uulMenuTPK");
+        var loJsFile = {};
+        var lcWkIsql = "",
+          lcWkRsql = "",
+          lcMnPare = "",
+          lcMnImag = "",
+          lcMnStyl = "",
+          lcBdNtfy = "";
+        var lmWkIsql = [];
+
+        //prettier-ignore
+        lmWkIsql = [
+          { pa_nome: "lcIdEmpr", pa_tipo: "VarChar", pa_valo: gcIdEmpr },
+          { pa_nome: "lcIdUser", pa_tipo: "VarChar", pa_valo: goCdUser.id_user.trim() },
+          { pa_nome: "lcMnTipo", pa_tipo: "VarChar", pa_valo: null },
+          { pa_nome: "lcIdPosi", pa_tipo: "VarChar", pa_valo: null }
+        ];
+
+        lcWkIsql = encodeURIComponent(JSON.stringify(lmWkIsql));
+
+        loUlMenu.innerHTML = lcWkRsql;
+
+        $.ajax({
+          url:
+            goCdUser.ws_http.trim() +
+            "chamadaProcedure?lcWkIsql=" +
+            lcWkIsql +
+            "&lcWkProc=pesquisaMenu",
+          type: "GET",
+          dataType: "jsonp",
+
+          success: function (lmWkRsql) {
+            try {
+              if (lmWkRsql.length > 0) {
+                for (var i = 0; i < lmWkRsql.length; i++) {
+                  lcBdNtfy = "";
+
+                  if (parseInt(lmWkRsql[i].id_posi) > 0) {
+                    if (
+                      lcMnPare.trim().length > 0 &&
+                      lcMnPare.trim() != lmWkRsql[i].mn_pare.trim()
+                    ) {
+                      lcMnPare = "";
+
+                      //prettier-ignore
+                      lcWkRsql += 
+                              "</ul>" +
+                            "</div>" +
+                          "</div>" +
+                        "</li>";
+                    }
+
+                    if (lmWkRsql[i].mn_tipo.trim().toUpperCase() == "M") {
+                      lcMnPare = lmWkRsql[i].id_posi.trim();
+
+                      //prettier-ignore
+                      lcWkRsql += 
+                        "<li class='accordion-item'>" +
+                          "<a href='#' class='item-content item-link'>" +
+                            "<div class='item-media'>" +
+                              "<i class='material-icons'>" + lmWkRsql[i].mn_imag.trim().toLowerCase() + "</i>" +
+                            "</div>" +
+                            "<div class='item-inner'>" +
+                              "<div class='item-title'>" +
+                                lmWkRsql[i].mn_deno.trim().toLowerCase() +
+                              "</div>" +
+                            "</div>" +
+                          "</a>" +
+                          "<div class='accordion-item-content'>" +
+                            "<div class='list'>" +
+                              "<ul>";
+                    } else {
+                      if (lmWkRsql[i].mn_imag.trim().charAt(0) == "-") {
+                        lcMnImag = "";
+                      } else {
+                        lcMnImag = lmWkRsql[i].mn_imag.trim().toLowerCase();
+                      }
+
+                      try {
+                        if (lmWkRsql[i].mn_styl.trim().length > 0) {
+                          lcMnStyl =
+                            " style='" + lmWkRsql[i].mn_styl.trim() + "'";
+                        } else {
+                          lcMnStyl = "";
+                        }
+                      } catch (error) {
+                        lcMnStyl = "";
+                      }
+
+                      if (lmWkRsql[i].mn_tipo.trim().toUpperCase() == "L") {
+                        //prettier-ignore
+                        lcWkRsql +=
+                                "<li>" +
+                                  "<a href='#' onclick='linkTPK(\"" + lmWkRsql[i].mn_link.trim() + "\");' class='item-link panel-close item-content'>" +
+                                    "<div class='item-media'>" +
+                                      "<i class='material-icons'>" + lcMnImag + "</i>" +
+                                    "</div>" +
+                                    "<div class='item-inner'>" +
+                                      "<div class='item-title'>" +
+                                        "<b" + lcMnStyl + ">" +
+                                          lmWkRsql[i].mn_deno.trim().toLowerCase() +
+                                        "</b>" +
+                                      "</div>" +
+                                    "</div>" +
+                                  "</a>" +
+                                "</li>";
+                      } else {
+                        if (
+                          lmWkRsql[i].mn_tela.trim().toUpperCase() ==
+                          "UTILCDNTFY.HTML"
+                        ) {
+                          lcBdNtfy = "<span id='spnNtfyTPK'></span>";
+                        } else if (
+                          lmWkRsql[i].mn_tela.trim().toUpperCase() ==
+                          "VNDAPEORCA.HTML"
+                        ) {
+                          lcBdNtfy = "<span id='spnOrcaTPK'></span>";
+                        }
+
+                        //prettier-ignore
+                        lcWkRsql +=
+                                "<li>" +
+                                  "<a href='#' onclick='redireciona(\"" + lmWkRsql[i].mn_path.trim() + lmWkRsql[i].mn_tela.trim() + '", "' + lmWkRsql[i].mn_tela.trim() + "\");' class='item-link panel-close item-content'>" +
+                                    "<div class='item-media'>" +
+                                      "<i class='material-icons'>" + lcMnImag + "</i>" + lcBdNtfy +
+                                    "</div>" +
+                                    "<div class='item-inner'>" +
+                                      "<div class='item-title'>" +
+                                        "<b" + lcMnStyl + ">" +
+                                          lmWkRsql[i].mn_deno.trim().toLowerCase() +
+                                        "</b>" +
+                                      "</div>" +
+                                    "</div>" +
+                                  "</a>" +
+                                "</li>";
+                      }
+                    }
+                  }
+
+                  if (lmWkRsql[i].mn_tela.trim().length > 0) {
+                    loJsFile = document.createElement("script");
+
+                    loJsFile.type = "text/javascript";
+                    loJsFile.src =
+                      lmWkRsql[i].mn_path.trim() +
+                      lmWkRsql[i].mn_tela.replace(".html", ".js").trim();
+
+                    document.body.appendChild(loJsFile);
+                  }
+                }
+
+                loUlMenu.innerHTML = lcWkRsql;
+
+                try {
+                  for (var i = 0; i < lmWkRsql.length; i++) {
+                    if (
+                      lmWkRsql[i].mn_tela.trim().toUpperCase() ==
+                      "UTILCDNTFY.HTML"
+                    ) {
+                      pesquisaNotificacoesTPK();
+                    } else if (
+                      lmWkRsql[i].mn_tela.trim().toUpperCase() ==
+                      "VNDAPEORCA.HTML"
+                    ) {
+                      pesquisaOrcamentosTPK();
+                    }
+                  }
+
+                  for (var i = 0; i < lmWkRsql.length; i++) {
+                    if (
+                      parseInt(goCdUser.id_posi) ==
+                        parseInt(lmWkRsql[i].id_posi) &&
+                      lmWkRsql[i].mn_tipo.trim().toUpperCase() == "T"
+                    ) {
+                      redireciona(
+                        lmWkRsql[i].mn_path.trim() + lmWkRsql[i].mn_tela.trim(),
+                        lmWkRsql[i].mn_tela.trim()
+                      );
+
+                      break;
+                    }
+                  }
+                } catch (error) {}
+              }
+            } catch (loApErro) {}
+          },
+          error: function (jqXHR, textStatus, err) {},
+        });
+      }
+
+      function consultaAutoridadeTPK() {
+        var loAhAutd = document.getElementById("ahrAutdTPK");
+        var loAhMenu = document.getElementById("ahrMenuTPK");
+        var lcWkIsql = "";
+        var lmWkIsql = [];
+
+        if (goCdUser.us_grup.trim().toUpperCase() == "ADMINISTRADOR") {
+          loAhMenu.style.display = "";
+          loAhAutd.style.display = "";
+
+          return;
+        }
+
+        loAhMenu.style.display = "none";
+        loAhAutd.style.display = "none";
+
+        //prettier-ignore
+        lmWkIsql = [
+          { pa_nome: "lcIdEmpr", pa_tipo: "VarChar", pa_valo: gcIdEmpr },
+          { pa_nome: "lcIdUser", pa_tipo: "VarChar", pa_valo: goCdUser.id_user.trim() },
+          { pa_nome: "lcIdProg", pa_tipo: "VarChar", pa_valo: "AUTOSYS" }
+        ];
+
+        lcWkIsql = encodeURIComponent(JSON.stringify(lmWkIsql));
+
+        $.ajax({
+          url:
+            goCdUser.ws_http.trim() +
+            "chamadaProcedure?lcWkIsql=" +
+            lcWkIsql +
+            "&lcWkProc=consultaAutoridade",
+          type: "GET",
+          dataType: "jsonp",
+
+          success: function (lmWkRsql) {
+            try {
+              if (lmWkRsql.length > 0) {
+                loAhAutd.style.display = "";
+              }
+            } catch (loApErro) {}
+          },
+          error: function (loApErro) {},
+        });
+      }
+
+      function consultaSenhaTPK() {
+        var lnIdVers = 0;
+        var lmWkIsql = [];
+        var lcWkIsql = "";
+
+        //prettier-ignore
+        lmWkIsql = [
+          { pa_nome: "lcIdUser", pa_tipo: "VarChar", pa_valo: goCdUser.id_user.split(" ").join("").trim().toUpperCase() },
+          { pa_nome: "lcUsSmd5", pa_tipo: "VarChar", pa_valo: goCdUser.us_smd5.trim().toUpperCase() }
+        ];
+
+        lcWkIsql = encodeURIComponent(JSON.stringify(lmWkIsql));
+
+        $.ajax({
+          url:
+            goCdUser.ws_http.trim() +
+            "chamadaProcedure?lcWkIsql=" +
+            lcWkIsql +
+            "&lcWkProc=consultaSenha",
+          type: "GET",
+          dataType: "jsonp",
+
+          success: function (lmWkRsql) {
+            try {
+              if (lmWkRsql.length > 0) {
+                if (isMobile()) {
+                  if (lmWkRsql[0].id_vers > 0) {
+                    cordova.getAppVersion(function (lcApVers) {
+                      lnIdVers = parseInt(lcApVers.replace(/[^\d]+/g, ""));
+
+                      if (lnIdVers < lmWkRsql[0].id_vers) {
+                        app.dialog
+                          .create({
+                            title: "alerta",
+                            text: "aplicativo desatualizado",
+                            buttons: [
+                              {
+                                text: "ok",
+                                color: corBotaoAlerta(),
+                                onClick: function () {
+                                  localStorage.removeItem("soCdUser");
+
+                                  window.location = "LginUsKerp.html";
+
+                                  if (gcSiOper == "iOS") {
+                                    window.open(
+                                      "itms-apps://itunes.apple.com/app/id1185038807",
+                                      "_system"
+                                    );
+                                  } else {
+                                    window.open(
+                                      "market://details?id=br.com.ats.kerp",
+                                      "_system"
+                                    );
+                                  }
+                                },
+                              },
+                            ],
+                          })
+                          .open();
+                      }
+                    });
+                  }
+                }
+              } else {
+                localStorage.removeItem("soCdUser");
+
+                window.location = "LginUsKerp.html";
+              }
+            } catch (loApErro) {
+              localStorage.removeItem("soCdUser");
+
+              window.location = "LginUsKerp.html";
+            }
+          },
+          error: function (jqXHR, textStatus, err) {
+            localStorage.removeItem("soCdUser");
+
+            window.location = "LginUsKerp.html";
+          },
+        });
+      }
+
+      function pesquisaEmpresasTPK() {
+        var loHtKerp = document.getElementById("htmKerpTPK");
+        var loHdKerp = document.getElementById("hedKerpTPK");
+        var loSlEmpr = document.getElementById("sltEmprTPK");
+        var loImEmpr = document.getElementById("imgEmprTPK");
+        var loDvPnel = document.getElementById("divPnelTPK");
+        var loObStyl = document.createElement("style");
+        var lmEmTela = [];
+        var lcSlRsql = "<option value='//0/0/'></option>",
+          lcSlSlct = "";
+
+        loObStyl.type = "text/css";
+
+        loSlEmpr.innerHTML =
+          "<option value='//0/0/'>CARREGANDO EMPRESAS...</option>";
+
+        loSlEmpr.disabled = true;
+
+        $.ajax({
+          url:
+            goCdUser.ws_http.trim() +
+            "chamadaProcedure?lcWkIsql=[]&lcWkProc=pesquisaEmpresas",
+          type: "GET",
+          dataType: "jsonp",
+
+          success: function (lmWkRsql) {
+            loSlEmpr.disabled = false;
+
+            try {
+              if (lmWkRsql.length > 0) {
+                lcSlRsql = "";
+
+                for (var i = 0; i < lmWkRsql.length; i++) {
+                  if (goCdUser.us_empr.trim() == lmWkRsql[i].id_empr.trim()) {
+                    lcSlSlct = " selected";
+
+                    try {
+                      if (lmWkRsql[i].em_tela.trim().length > 0) {
+                        lmEmTela = lmWkRsql[i].em_tela.trim().split("/");
+
+                        redireciona(
+                          lmWkRsql[i].em_tela.trim(),
+                          lmEmTela[lmEmTela.length - 1]
+                        );
+                      }
+                    } catch (error) {}
+
+                    try {
+                      if (parseInt(lmWkRsql[i].em_thwi) > 0) {
+                        loHtKerp.classList.remove("theme-dark");
+                        loDvPnel.classList.remove("bg-color-black");
+                      } else {
+                        //prettier-ignore
+                        loObStyl.innerHTML = 
+                          "input { " +
+                            "color-scheme: dark; " +
+                          "}";
+
+                        loHdKerp.appendChild(loObStyl);
+                      }
+                    } catch (error) {
+                      //prettier-ignore
+                      loObStyl.innerHTML = 
+                        "input { " +
+                          "color-scheme: dark; " +
+                        "}";
+
+                      loHdKerp.appendChild(loObStyl);
+                    }
+                  } else {
+                    lcSlSlct = "";
+                  }
+
+                  //prettier-ignore
+                  lcSlRsql += "<option value='" + lmWkRsql[i].id_empr.trim().toUpperCase() + "/" + lmWkRsql[i].em_clor.trim().toUpperCase() + "/" + lmWkRsql[i].st_ativ.toString() + "/" + lmWkRsql[i].st_pcad.toString() + "/" + lmWkRsql[i].em_mail.trim().toUpperCase() + "'" + lcSlSlct + ">" + lmWkRsql[i].em_fant.trim() + "</option>";
+                }
+              }
+            } catch (loApErro) {}
+
+            loSlEmpr.innerHTML = lcSlRsql;
+
+            //prettier-ignore
+            gcIdEmpr = loSlEmpr.value.toString().split("/")[0].trim().toUpperCase();
+
+            loImEmpr.src =
+              "http://www.atscs.com.br/images/empresas/" + gcIdEmpr + ".png";
+
+            localStorage.setItem("scIdEmpr", gcIdEmpr);
+
+            pesquisaMenuTPK();
+            alteraCorTemaTPK();
+          },
+          error: function (jqXHR, textStatus, err) {
+            loSlEmpr.disabled = false;
+
+            loSlEmpr.innerHTML = lcSlRsql;
+          },
+        });
+      }
+
+      function saiTPK() {
+        app.dialog
+          .create({
+            title: "alerta",
+            text: "deseja sair ?",
+            buttons: [
+              {
+                text: "cancelar",
+                color: corBotaoAlerta(),
+              },
+              {
+                text: "ok",
+                color: corBotaoAlerta(),
+                onClick: function () {
+                  localStorage.removeItem("soCdUser");
+
+                  window.location = "LginUsKerp.html";
+                },
+              },
+            ],
+          })
+          .open();
+      }
+
+      function TelaPdKerp() {
+        var loSpUser = document.getElementById("spnUserTPK");
+        var loAhCont = document.getElementById("ahrContTPK");
+        var loDvTitu = document.getElementById("divTituTPK");
+        var loImEmpr = document.getElementById("imgEmprTPK");
+        var lcIdEmpr = localStorage.getItem("scIdEmpr"),
+          lcVsData = new Date().yyyymmdd();
+        var loUrParm = new URLSearchParams(window.location.search);
+
+        inicializaAplicativo();
+
+        try {
+          if (goCdUser.id_oper > 0) {
+            loSpUser.innerHTML = goCdUser.us_nome.trim();
+          } else {
+            localStorage.removeItem("soCdUser");
+
+            window.location = "LginUsKerp.html";
+
+            return;
+          }
+        } catch (loApErro) {
+          localStorage.removeItem("soCdUser");
+
+          window.location = "LginUsKerp.html";
+
+          return;
+        }
+
+        if (!isMobile()) {
+          if (
+            loUrParm.get("v").toString().trim().toUpperCase() !=
+            lcVsData.toString().trim().toUpperCase()
+          ) {
+            window.location = "TelaPdKerp.html?v=" + new Date().yyyymmdd();
+
+            return;
+          }
+        }
+
+        if (gcSiOper == "iOS") {
+          loAhCont.style.display = "none";
+        }
+
+        try {
+          if (lcIdEmpr.trim().length > 0) {
+            loImEmpr.src =
+              "http://www.atscs.com.br/images/empresas/" +
+              lcIdEmpr.trim() +
+              ".png";
+          }
+        } catch (loApErro) {}
+
+        loDvTitu.style.left = "";
+
+        pesquisaEmpresasTPK();
+        consultaSenhaTPK();
+        consultaAutoridadeTPK();
+      }
+    </script>
+  </head>
+  <body id="bdyKerpTPK">
+    <div id="app">
+      <div class="statusbar"></div>
+      <div
+        id="divPnelTPK"
+        class="panel panel-left panel-cover panel-resizable bg-color-black escondeEixoX"
+      >
+        <div class="list simple-list">
+          <ul>
+            <li><span id="spnUserTPK"></span></li>
+          </ul>
+        </div>
+        <div class="list no-hairlines-md">
+          <ul>
+            <li class="item-content item-input">
+              <div class="item-inner">
+                <div class="item-title item-label">empresa</div>
+                <div class="item-input-wrap input-dropdown-wrap">
+                  <select
+                    placeholder="escolha a empresa"
+                    id="sltEmprTPK"
+                    onchange="alteraEmpresaTPK();"
+                  ></select>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="list">
+          <ul id="uulMenuTPK"></ul>
+        </div>
+      </div>
+      <div class="popover popover-links">
+        <div class="popover-inner">
+          <div class="list">
+            <ul>
+              <li>
+                <a
+                  id="ahrAutdTPK"
+                  href="#"
+                  onclick="redireciona('MobiCdAutd.html', 'MobiCdAutd.html');"
+                  class="list-button item-link popover-close"
+                  >autoridades</a
+                >
+              </li>
+              <li>
+                <a
+                  id="ahrMenuTPK"
+                  href="#"
+                  onclick="redireciona('MobiTbMenu.html', 'MobiTbMenu.html');"
+                  class="list-button item-link popover-close"
+                  >menu</a
+                >
+              </li>
+              <li>
+                <a
+                  id="ahrContTPK"
+                  href="#"
+                  onclick="helpDeskTPK();"
+                  class="list-button item-link popover-close"
+                  >contato</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  onclick="redireciona('CntaDoUser.html', 'CntaDoUser.html');"
+                  class="list-button item-link popover-close"
+                  >conta</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  onclick="saiTPK();"
+                  class="list-button item-link popover-close"
+                  >sair</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="view view-main">
+        <div data-name="TelaPdKerp" class="page">
+          <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+              <div class="left">
+                <a href="#" data-panel="left" class="link icon-only panel-open">
+                  <i class="material-icons">menu</i>
+                </a>
+              </div>
+              <div id="divTituTPK" class="title">início</div>
+              <div class="right">
+                <a
+                  href="#"
+                  data-popover=".popover-links"
+                  class="link popover-open"
+                >
+                  <i class="material-icons">more_vert</i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="page-content escondeEixoX">
+            <div class="card">
+              <div class="card-header">bem vindo</div>
+              <div class="card-content card-content-padding">
+                <img
+                  id="imgEmprTPK"
+                  style="width: 100%; height: 100%"
+                  alt="empresa sem logo"
+                  onerror="this.src='img/semImagem.png';"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery.maskedinput.min.js"></script>
+    <script type="text/javascript" src="js/framework7.bundle.min.js"></script>
+    <!-- <script type="text/javascript" src="js/html2canvas.min.js"></script> -->
+    <script type="text/javascript" src="js/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
+    <script type="text/javascript" src="js/script.js"></script>
+    <script type="text/javascript" src="js/face-api.min.js"></script>
+    <!-- <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlztLmAaHT9tQHKabzHUDz7vx4fUUEOAs&callback=Function.prototype"
+      type="text/javascript"
+    ></script> -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlztLmAaHT9tQHKabzHUDz7vx4fUUEOAs&callback=Function.prototype"
+      async
+      defer
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/md5.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.13.0/js/anychart-base.min.js?hcode=a0c21fc77e1449cc86299c5faa067dc4"></script>
+    <script src="https://cdn.anychart.com/releases/8.13.0/js/anychart-treemap.min.js?hcode=a0c21fc77e1449cc86299c5faa067dc4"></script>
+    <script>
+      // try {
+      //   document.addEventListener(
+      //     "deviceready",
+      //     function () {
+      //       isMobile();
+      //       TelaPdKerp();
+      //     },
+      //     true
+      //   );
+      // } catch (loApErro) {
+      //   isMobile();
+      //   TelaPdKerp();
+      // }
+
+      isMobile();
+      TelaPdKerp();
+    </script>
+  </body>
+</html>
