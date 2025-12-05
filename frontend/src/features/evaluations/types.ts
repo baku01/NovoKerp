@@ -49,5 +49,6 @@ export interface EvaluationFilters {
     endDate: Date | null;
     worksiteId: number | null;
     employeeId: number | null;
+    employeeName?: string | null;
     evaluatorId?: string;
 }

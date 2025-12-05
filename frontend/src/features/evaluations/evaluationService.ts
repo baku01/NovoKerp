@@ -13,7 +13,7 @@ export async function fetchEvaluations(
         createParam('lnIdClie', 'Int', filters.worksiteId),
         createParam('lnIdMatr', 'Int', filters.employeeId),
         createParam('lcFuEmpr', 'VarChar', null),
-        createParam('lcFuNome', 'VarChar', null), // Could filter by name if needed
+        createParam('lcFuNome', 'VarChar', filters.employeeName || null),
     ];
     return callProcedure<Evaluation>('pesquisaAvaliacoes', params);
 }
