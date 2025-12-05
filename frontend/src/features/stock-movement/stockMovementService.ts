@@ -1,6 +1,5 @@
 import { callProcedure, createParam } from '../../api/procedures';
 import { StockMovementItem, StockMovementHeader, StockMovementPayload } from './types';
-import { format } from 'date-fns';
 
 export async function fetchStockItemsForMovement(
     empresa: string,

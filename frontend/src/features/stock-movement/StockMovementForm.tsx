@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { format } from 'date-fns';
@@ -10,8 +9,6 @@ import { StockMovementHeader, StockMovementItem } from './types';
 import { brDecimal, brMoney } from '../../utils/formatters';
 
 export const StockMovementForm: React.FC = () => {
-    const navigate = useNavigate();
-
     // Header State
     const [type, setType] = useState<'E' | 'S'>('S'); // Default Exit
     const [date, setDate] = useState<Date>(new Date());

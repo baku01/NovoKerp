@@ -21,8 +21,10 @@ import { DivergenceReport } from './features/divergences/DivergenceReport';
 import { DailyResourcesList } from './features/resources/DailyResourcesList';
 import { StockPositionList } from './features/stock-position/StockPositionList';
 import { StockMovementForm } from './features/stock-movement/StockMovementForm';
+import { StockMovementList } from './features/transfers/StockMovementList';
 import { PurchasingList } from './features/purchasing/PurchasingList';
 import { ProductionOrderList } from './features/production-orders/ProductionOrderList';
+import { DocumentBrowser } from './features/documents/DocumentBrowser';
 import './index.css';
 
 // Protected Route wrapper
@@ -217,6 +219,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProductionOrderList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/transferencias-estoque"
+            element={
+              <ProtectedRoute>
+                <StockMovementList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/documentos"
+            element={
+              <ProtectedRoute>
+                <DocumentBrowser />
               </ProtectedRoute>
             }
           />
