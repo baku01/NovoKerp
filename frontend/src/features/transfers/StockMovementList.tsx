@@ -94,18 +94,24 @@ export const StockMovementList: React.FC = () => {
                 ) : (
                     <div className="space-y-4">
                         {items.map((item) => {
-                            // Type guard or safe access
+                            // Type guard for type-safe property access
                             const isTransfer = 'id_strf' in item;
-                            const id = isTransfer ? (item as StockTransfer).id_strf : (item as StockReturn).id_dves;
-                            const data = isTransfer ? (item as StockTransfer).sl_data : (item as StockReturn).dl_data;
-                            const qtde = isTransfer ? (item as StockTransfer).sl_qtde : (item as StockReturn).dl_qtde;
-                            const pcus = isTransfer ? (item as StockTransfer).sl_pcus : (item as StockReturn).dl_pcus;
-                            const user = isTransfer ? (item as StockTransfer).sl_user : (item as StockReturn).dl_user;
-                            const obse = isTransfer ? (item as StockTransfer).sl_obse : (item as StockReturn).dl_obse;
+                            
+                            // Extract typed references once after type guard
+                            const transfer = isTransfer ? item as StockTransfer : null;
+                            const returnItem = !isTransfer ? item as StockReturn : null;
+                            
+                            const id = transfer?.id_strf ?? returnItem!.id_dves;
+                            const data = transfer?.sl_data ?? returnItem!.dl_data;
+                            const qtde = transfer?.sl_qtde ?? returnItem!.dl_qtde;
+                            const pcus = transfer?.sl_pcus ?? returnItem!.dl_pcus;
+                            const user = transfer?.sl_user ?? returnItem!.dl_user;
+                            const obse = transfer?.sl_obse ?? returnItem?.dl_obse;
+                            const dnec = transfer?.sl_dnec;
 
                             // Dates
-                            const denv = isTransfer ? (item as StockTransfer).sl_denv : (item as StockReturn).dl_denv;
-                            const drec = isTransfer ? (item as StockTransfer).sl_drec : (item as StockReturn).dl_drec;
+                            const denv = transfer?.sl_denv ?? returnItem?.dl_denv;
+                            const drec = transfer?.sl_drec ?? returnItem?.dl_drec;
 
                             return (
                                 <details key={id} className="border border-slate-200 rounded-lg group">
@@ -140,7 +146,7 @@ export const StockMovementList: React.FC = () => {
                                                 <DetailRow label="Data Aprovação" value={jsonDate(item.ap_data ?? null)} />
                                             </>
                                         )}
-                                        {isTransfer && (item as StockTransfer).sl_dnec && <DetailRow label="Data Necessidade" value={jsonDate((item as StockTransfer).sl_dnec ?? null)} />}
+                                        {dnec && <DetailRow label="Data Necessidade" value={jsonDate(dnec)} />}
                                         {denv && <DetailRow label="Data Envio" value={jsonDate(denv)} />}
                                         {drec && <DetailRow label="Data Recebimento" value={jsonDate(drec)} />}
                                         {obse && (

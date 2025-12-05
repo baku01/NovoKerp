@@ -60,6 +60,7 @@ export const DocumentBrowser: React.FC = () => {
 };
 
 const FolderItem: React.FC<{ name: string, parentPath: string }> = ({ name, parentPath }) => {
+    const user = useUserStore((state) => state.user);
     const [isOpen, setIsOpen] = useState(false);
     const fullPath = `${parentPath}/${name}`;
     const { items: files, isLoading } = useDocuments(fullPath, true); // Fetch files when expanded
@@ -69,7 +70,6 @@ const FolderItem: React.FC<{ name: string, parentPath: string }> = ({ name, pare
     };
 
     const handleFileClick = (fileName: string) => {
-        const user = useUserStore.getState().user;
         const baseUrl = user?.ws_http?.replace('wsexec/', '') || '';
 
         // Construct standard legacy path
