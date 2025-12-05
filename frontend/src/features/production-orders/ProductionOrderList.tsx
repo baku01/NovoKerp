@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useProductionOrders, useProductionOrderDetail } from './useProductionOrders';
 import { useAllWorksites } from '../evaluations/useEvaluations';
+import { useProposals } from '../service-orders/useProposals'; // Reuse proposals hook
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { format, subMonths } from 'date-fns';
@@ -11,15 +12,18 @@ export const ProductionOrderList: React.FC = () => {
     const [startDate, setStartDate] = useState<Date>(subMonths(new Date(), 1));
     const [endDate, setEndDate] = useState<Date>(new Date());
     const [selectedWorksite, setSelectedWorksite] = useState<string>('0');
+    const [selectedProposal, setSelectedProposal] = useState<string>('0');
     
     const { worksites } = useAllWorksites();
+    // Fetch proposals if worksite selected
+    const { proposals } = useProposals(parseInt(selectedWorksite) || 0);
 
     const filters = useMemo(() => ({
         startDate,
         endDate,
         worksiteId: parseInt(selectedWorksite) || null,
-        orderId: null // Could add proposal filter
-    }), [startDate, endDate, selectedWorksite]);
+        orderId: parseInt(selectedProposal) || null // "Proposal" is Service Order here
+    }), [startDate, endDate, selectedWorksite, selectedProposal]);
 
     const { orders, isLoading } = useProductionOrders(filters);
     const [selectedOrder, setSelectedOrder] = useState<ProductionOrder | null>(null);
@@ -35,7 +39,7 @@ export const ProductionOrderList: React.FC = () => {
         <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
             <div className="bg-white p-4 rounded-lg shadow">
                 <h1 className="text-xl font-bold text-slate-800 mb-4">Ordens de Serviço de Produção</h1>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <Input
                         type="date"
                         label="Data Inicial"
@@ -55,7 +59,20 @@ export const ProductionOrderList: React.FC = () => {
                             ...worksites.map(w => ({ value: w.id_clie, label: w.cl_fant }))
                         ]}
                         value={selectedWorksite}
-                        onChange={(e) => setSelectedWorksite(e.target.value)}
+                        onChange={(e) => {
+                            setSelectedWorksite(e.target.value);
+                            setSelectedProposal('0');
+                        }}
+                    />
+                    <Select
+                        label="Proposta (OS)"
+                        options={[
+                            { value: '0', label: 'TODAS' },
+                            ...proposals.map(p => ({ value: p.id_ords, label: `${p.os_nume} - ${p.os_desc}` }))
+                        ]}
+                        value={selectedProposal}
+                        onChange={(e) => setSelectedProposal(e.target.value)}
+                        disabled={selectedWorksite === '0'}
                     />
                 </div>
             </div>
@@ -63,7 +80,9 @@ export const ProductionOrderList: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-0 flex-1">
                 {/* List */}
                 <div className="lg:col-span-1 bg-white rounded-lg shadow overflow-hidden flex flex-col">
-                    <div className="p-4 border-b border-slate-100 font-semibold text-slate-700">Ordens</div>
+                    <div className="p-4 border-b border-slate-100 font-semibold text-slate-700">
+                        Ordens ({orders.length})
+                    </div>
                     <div className="overflow-y-auto flex-1">
                         {isLoading ? (
                             <div className="p-4 text-center text-slate-400">Carregando...</div>

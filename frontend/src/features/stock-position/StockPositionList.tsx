@@ -3,7 +3,7 @@ import { useStockPosition, useWorksites, useServiceOrders, useEmployees } from '
 import { StockPositionFilters } from './types';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
-import { brDecimal, brMoney, jsonDate } from '../../utils/formatters';
+import { brDecimal, brMoney } from '../../utils/formatters';
 import { format, subMonths } from 'date-fns';
 
 export const StockPositionList: React.FC = () => {
@@ -18,14 +18,11 @@ export const StockPositionList: React.FC = () => {
     const [selectedEmployee, setSelectedEmployee] = useState<string>('0');
 
     // Derived Filters
-    const worksiteId = parseInt(selectedWorksite.split('/')[1]) || 0; // Legacy format: id_clie/id_cadt
     // Note: Legacy passes `id_clie` to procedures but select value uses `id_clie/id_cadt`.
-    // Let's verify what `fetchStockPosition` expects.
-    // Service expects `lnIdClie`.
     // Legacy `pesquisaObrasDefinidas` returns `id_clie` and `id_cadt`.
     // Legacy `CestPsEstq` uses `parseInt(loSlClie.value.split("/")[0])` for `lnIdClie` in `pesquisaPosicaoEstoqueConsumoCPE`.
-    // Wait, `pesquisaPosicaoEstoque` takes `lnIdClie`.
-    // So I should parse index 0.
+    // `pesquisaPosicaoEstoque` takes `lnIdClie`.
+    // So parse index 0.
     const realWorksiteId = parseInt(selectedWorksite.split('/')[0]) || 0;
 
     // Filters object for hooks
