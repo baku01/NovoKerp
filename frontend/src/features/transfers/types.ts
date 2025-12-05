@@ -1,71 +1,53 @@
-export interface StockReturn {
-    id_dves: number;
-    cl_fant: string;
-    dl_data: string; // Date
-    dl_qtde: number;
-    dl_pcus: number; // Cost
-    dl_user: string; // User who requested
-    
-    st_deno: string; // Status description
-    id_situ: number;
-    st_vcor: string; // Status color (RGB string e.g. "255, 0, 0")
-    
-    // Approval Info
-    ap_user: string;
-    ap_data: string;
-    
-    // Logistics Info
-    dl_denv: string; // Sent date
-    dl_ucon: string; // User contested
-    dl_dcon: string; // Date contested
-    dl_dpre: string; // Predicted delivery
-    dl_drec: string; // Received date
-    dl_obse: string; // Observation
-}
-
-export interface StockTransferRequest {
+export interface StockTransfer {
     id_strf: number;
-    cl_fant: string;
     sl_data: string;
-    sl_dnec: string; // Needed date
+    cl_fant: string;
+    sl_dnec?: string; // Optional/Nullable
+    st_deno: string;
+    st_vcor: string;
     sl_qtde: number;
     sl_pcus: number;
     sl_user: string;
-    
-    st_deno: string;
-    id_situ: number;
-    st_vcor: string;
-    
-    // Approval
-    ap_user: string;
-    ap_data: string;
-    
-    // Logistics
-    sl_uenv: string;
-    sl_denv: string;
-    sl_ucon: string;
-    sl_dcon: string;
-    sl_dpre: string;
-    sl_drec: string;
-    sl_obse: string;
+    ap_user?: string;
+    ap_data?: string;
+    sl_uenv?: string;
+    sl_denv?: string;
+    sl_ucon?: string;
+    sl_dcon?: string;
+    sl_dpre?: string;
+    sl_drec?: string;
+    sl_obse?: string;
+    // ... other fields
 }
 
-export interface StockWorksite {
-    id_clie: number;
+export interface StockReturn {
+    id_dves: number;
+    dl_data: string;
     cl_fant: string;
+    st_deno: string;
+    st_vcor: string;
+    dl_qtde: number;
+    dl_pcus: number;
+    dl_user: string;
+    ap_user?: string;
+    ap_data?: string;
+    dl_denv?: string;
+    dl_ucon?: string;
+    dl_dcon?: string;
+    dl_dpre?: string;
+    dl_drec?: string;
+    dl_obse?: string;
 }
 
-export interface StockStatusOption {
+export interface TransferFilters {
+    startDate: Date;
+    endDate: Date;
+    worksiteId: number | null;
+    statusId: number | null;
+}
+
+export interface TransferStatus {
     id_situ: number;
     st_deno: string;
-    st_vcor: string; // RGB
-    st_ativ?: number; // Active status flag?
-    st_aprv?: number; // Approved status flag?
-}
-
-export interface StockFilters {
-    startDate: Date | null;
-    endDate: Date | null;
-    statusId: number | null;
-    worksiteId: number | null;
+    st_vcor: string;
 }

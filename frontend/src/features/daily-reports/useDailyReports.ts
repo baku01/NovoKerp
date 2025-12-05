@@ -20,7 +20,8 @@ export function useDailyReports(filters: RdoFilters) {
 
     return {
         reports: query.data || [],
-        isLoading: query.isLoading
+        isLoading: query.isLoading,
+        refetch: query.refetch
     };
 }
 

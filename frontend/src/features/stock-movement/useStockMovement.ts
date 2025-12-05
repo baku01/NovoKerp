@@ -1,36 +1,45 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserStore } from '../../stores/useUserStore';
-import { fetchStockMovements, fetchStockMovementDetails } from './stockMovementService';
-import { StockMovementFilter } from './types';
+import { fetchStockItemsForMovement, saveStockMovement } from './stockMovementService';
+import { StockMovementHeader, StockMovementPayload } from './types';
 
-export function useStockMovementList(filters: StockMovementFilter) {
+export function useStockItems(header: StockMovementHeader, enabled: boolean) {
     const empresa = useUserStore((state) => state.empresa);
-    const enabled = !!empresa && !!filters.worksiteId;
+
+    // Extract fields relevant for fetching items to avoid refetching on observation change
+    const { mv_obse, ...fetchParams } = header;
 
     const query = useQuery({
-        queryKey: ['stockMovement', 'list', empresa, filters],
-        queryFn: () => fetchStockMovements(empresa, filters),
-        enabled
+        queryKey: ['stock-movement', 'items', empresa, fetchParams],
+        queryFn: () => fetchStockItemsForMovement(empresa, header),
+        enabled: enabled && !!empresa && header.id_clie > 0
     });
 
     return {
-        movements: query.data || [],
-        isLoading: query.isLoading
+        items: query.data || [],
+        isLoading: query.isLoading,
+        refetch: query.refetch
     };
 }
 
-export function useStockMovementDetail(docNum: number | null, type: string) {
+export function useStockMovementMutation() {
+    const user = useUserStore((state) => state.user);
     const empresa = useUserStore((state) => state.empresa);
-    const enabled = !!empresa && !!docNum;
+    const queryClient = useQueryClient();
 
-    const query = useQuery({
-        queryKey: ['stockMovement', 'detail', empresa, docNum, type],
-        queryFn: () => fetchStockMovementDetails(empresa, docNum!, type),
-        enabled
+    const mutation = useMutation({
+        mutationFn: (payload: StockMovementPayload) => {
+            if (!user) throw new Error("User not logged in");
+            return saveStockMovement(user.id_user, empresa, payload);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['stock-movement'] });
+            queryClient.invalidateQueries({ queryKey: ['stock-position'] });
+        }
     });
 
     return {
-        details: query.data || [],
-        isLoading: query.isLoading
+        saveMovement: mutation.mutateAsync,
+        isSaving: mutation.isPending
     };
 }

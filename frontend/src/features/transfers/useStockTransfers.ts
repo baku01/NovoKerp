@@ -1,48 +1,40 @@
 import { useQuery } from '@tanstack/react-query';
 import { useUserStore } from '../../stores/useUserStore';
-import {
-    fetchStockReturns,
-    fetchStockTransfers,
-    fetchStockWorksites,
-    fetchStockWorksitesSingleDate,
-    fetchStockStatuses
-} from './stockService';
-import { StockFilters, StockReturn, StockTransferRequest } from './types';
+import { fetchStockTransfers, fetchStockReturns, fetchTransferStatuses, fetchTransferWorksites } from './stockService';
+import { TransferFilters, StockTransfer, StockReturn } from './types';
 
-export function useStockTransfers(filters: StockFilters, type: 'TRANSFER' | 'RETURN') {
+export function useStockTransfers(filters: TransferFilters, mode: 'TRANSFER' | 'RETURN') {
     const empresa = useUserStore((state) => state.empresa);
-    const enabled = !!empresa && !!filters.startDate && !!filters.endDate;
+
+    // Explicitly type the query result to be a union array
+    const itemsQuery = useQuery<StockTransfer[] | StockReturn[]>({
+        queryKey: ['transfers', 'list', empresa, mode, filters],
+        queryFn: async () => {
+            if (mode === 'TRANSFER') {
+                return fetchStockTransfers(empresa, filters);
+            } else {
+                return fetchStockReturns(empresa, filters);
+            }
+        },
+        enabled: !!empresa
+    });
 
     const worksitesQuery = useQuery({
-        queryKey: ['stock', 'worksites', empresa, filters.startDate, filters.endDate, type],
-        queryFn: () => type === 'RETURN' 
-            ? fetchStockWorksites(empresa, filters.startDate, filters.endDate)
-            : fetchStockWorksitesSingleDate(empresa), // Transfers (CestStLcto) seems to use SingleDate/All approach
+        queryKey: ['transfers', 'worksites', empresa],
+        queryFn: () => fetchTransferWorksites(empresa),
         enabled: !!empresa
     });
 
     const statusesQuery = useQuery({
-        queryKey: ['stock', 'statuses', empresa, type],
-        queryFn: () => fetchStockStatuses(empresa, type),
+        queryKey: ['transfers', 'statuses', empresa, mode],
+        queryFn: () => fetchTransferStatuses(empresa, mode),
         enabled: !!empresa
     });
 
-    const listQuery = useQuery({
-        queryKey: ['stock', 'list', empresa, type, filters],
-        queryFn: async () => {
-            if (type === 'RETURN') {
-                return await fetchStockReturns(empresa, filters);
-            } else {
-                return await fetchStockTransfers(empresa, filters);
-            }
-        },
-        enabled
-    });
-
     return {
-        items: (listQuery.data || []) as (StockReturn | StockTransferRequest)[],
+        items: itemsQuery.data || [],
         worksites: worksitesQuery.data || [],
         statuses: statusesQuery.data || [],
-        isLoading: listQuery.isLoading || worksitesQuery.isLoading || statusesQuery.isLoading
+        isLoading: itemsQuery.isLoading
     };
 }

@@ -19,11 +19,13 @@ import { RecruitmentList } from './features/recruitment/RecruitmentList';
 import { DailyReportList } from './features/daily-reports/DailyReportList';
 import { DivergenceReport } from './features/divergences/DivergenceReport';
 import { DailyResourcesList } from './features/resources/DailyResourcesList';
-import { StockMovementList } from './features/transfers/StockMovementList';
-import { StockPositionReport } from './features/stock-position/StockPositionReport';
-import { StockMovementList as StockMovements } from './features/stock-movement/StockMovementList';
+import { StockPositionList } from './features/stock-position/StockPositionList';
+import { StockMovementForm } from './features/stock-movement/StockMovementForm';
+import { StockMovementList } from './features/transfers/StockMovementList'; // Added
+import { ServiceMeasurementReport } from './features/measurements/ServiceMeasurementReport';
 import { PurchasingList } from './features/purchasing/PurchasingList';
 import { ProductionOrderList } from './features/production-orders/ProductionOrderList';
+import { DocumentBrowser } from './features/documents/DocumentBrowser';
 import './index.css';
 
 // Protected Route wrapper
@@ -190,18 +192,10 @@ function App() {
             }
           />
           <Route
-            path="/estoque"
-            element={
-              <ProtectedRoute>
-                <StockMovementList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/relatorio-estoque"
             element={
               <ProtectedRoute>
-                <StockPositionReport />
+                <StockPositionList />
               </ProtectedRoute>
             }
           />
@@ -209,7 +203,15 @@ function App() {
             path="/movimentacao-estoque"
             element={
               <ProtectedRoute>
-                <StockMovements />
+                <StockMovementForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/transferencias-estoque"
+            element={
+              <ProtectedRoute>
+                <StockMovementList />
               </ProtectedRoute>
             }
           />
@@ -226,6 +228,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProductionOrderList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/documentos"
+            element={
+              <ProtectedRoute>
+                <DocumentBrowser />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/medicao-servico"
+            element={
+              <ProtectedRoute>
+                <ServiceMeasurementReport />
               </ProtectedRoute>
             }
           />

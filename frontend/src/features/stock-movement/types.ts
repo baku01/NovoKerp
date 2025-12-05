@@ -1,50 +1,41 @@
-export interface StockMovement {
-    id_sequ: number;
-    mv_docu: number; // Document Number
-    mv_data: string; // Date
-    mv_tpme: string; // 'E' (Entry/Devolution) or 'S' (Exit/Transfer)
-    mv_obse: string; // Observation
+export interface StockMovementItem {
+    id_cest: number;
+    ce_codi: string;
+    ce_deno: string;
+    ce_espt: string;
+    ce_unes: string;
+    ce_tipo: string;
+    ce_vcus: number;
     
+    // Stock Info
+    en_qtde: number;
+    sa_qtde: number;
+    de_qtde: number;
+    
+    // Movement Info
+    mv_qtde: number; // The quantity being moved
+    mv_pcus: number; // Cost of movement
+    mv_motv: string; // Reason/Observation for item
+}
+
+export interface StockMovementHeader {
     id_clie: number;
-    cl_fant: string;
-    
-    // Items
-    ce_codi: string;
-    ce_deno: string;
-    ce_espt: string;
-    ce_unes: string;
-    mv_qtde: number;
-    mv_pcus: number;
-    mv_tcus: number; // Total Cost
-    
-    // Context
-    mv_user: string;
-    sl_matr: number; // Employee ID who launched?
-    sl_nome: string; // Employee Name who launched?
-    
-    // Links
-    id_matr?: number;
-    fu_nome?: string;
-    id_ords?: number;
-    os_nume?: string;
-    os_desc?: string;
+    mv_tpme: 'E' | 'S'; // Entry / Exit
+    mv_data: string; // Date
+    mv_dpar: 'F' | 'P'; // Funcionario / Proposta
+
+    id_empr_func?: string; // Company of employee
+    id_matr_func?: number; // Employee ID
+
+    id_ords?: number; // Service Order ID
+
+    id_clie_cost?: number; // Cost Center Worksite (if F)
+
+    mv_obse: string;
+    mv_lati?: string;
+    mv_long?: string;
 }
 
-export interface StockMovementFilter {
-    startDate: Date | null;
-    endDate: Date | null;
-    type: 'E' | 'S' | 'T'; // T=Todos
-    searchType: 'F' | 'P'; // Funcionario / Proposta
-    worksiteId: number | null;
-    employeeId?: number | null; // For filter
-    orderId?: number | null; // For filter
-}
-
-export interface StockCatalogItem {
-    id_item: number; // or whatever ID the catalog uses
-    ce_codi: string;
-    ce_deno: string;
-    ce_espt: string;
-    ce_unes: string;
-    // ...
+export interface StockMovementPayload extends StockMovementHeader {
+    items: StockMovementItem[];
 }
