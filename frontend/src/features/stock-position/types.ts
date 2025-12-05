@@ -1,45 +1,47 @@
-export interface StockItem {
-    id_clie: number;
-    cl_fant: string;
+export interface StockPosition {
     ce_deno: string; // Item Name
-    ce_espt: string; // Specification?
-    al_deno: string; // Category/Group?
-    ce_tipo: string; // 'U' or 'A'?
+    ce_espt: string; // Specification
+    ce_tipo: string; // 'U' (Usage) or 'A' (Asset/Stock) - though logic seems to use it to calc diffs
+    al_deno: string; // Group/Category?
     
-    // Quantities
-    sa_qtde: number; // Out Qty
-    en_qtde: number; // In Qty
-    
-    // Costs
-    sa_tcus: number; // Out Cost
-    en_tcus: number; // In Cost
-    
-    // Context
-    mv_data?: string; // Date
+    // Usage columns
+    sa_qtde: number;
+    en_qtde: number;
+    sa_tcus: number;
+    en_tcus: number;
+
+    // Additional fields might be present in response
+    id_clie?: number;
+    cl_fant?: string;
     mv_dtde?: string;
     mv_dtat?: string;
+    mv_data?: string;
 }
 
 export interface StockPositionFilters {
-    mode: 'POSITION' | 'CONSUMPTION'; // 'A' or 'U'
-    worksiteId: number | null;
-    date: Date | null; // For Position
-    startDate: Date | null; // For Consumption
-    endDate: Date | null; // For Consumption
-    
-    orderId?: number | null; // Proposal
-    employeeId?: number | null; // Employee ID
-    employeeCompany?: string | null; // Employee Company Code
+    type: 'U' | 'A'; // U = Consumo, A = Posição
+    date?: Date | null; // For Position
+    startDate?: Date | null; // For Consumption
+    endDate?: Date | null; // For Consumption
+    worksiteId: number;
+    employeeId?: number | null;
+    serviceOrderId?: number | null;
 }
 
-export interface StockEmployee {
-    id_matr: number;
-    fu_nome: string;
-    fu_empr: string;
+export interface Worksite {
+    id_clie: number;
+    id_cadt: number;
+    cl_fant: string;
 }
 
-export interface StockOrder {
+export interface ServiceOrder {
     id_ords: number;
     os_nume: string;
     os_desc: string;
+}
+
+export interface EmployeeCandidate {
+    id_matr: number;
+    fu_nome: string;
+    fu_empr: string;
 }
