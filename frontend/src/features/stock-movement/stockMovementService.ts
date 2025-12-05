@@ -1,60 +1,54 @@
 import { callProcedure, createParam } from '../../api/procedures';
-import { StockMovement, StockMovementFilter } from './types';
+import { StockMovementItem, StockMovementHeader, StockMovementPayload } from './types';
 import { format } from 'date-fns';
 
-export async function fetchStockMovements(
+export async function fetchStockItemsForMovement(
     empresa: string,
-    filters: StockMovementFilter
-): Promise<StockMovement[]> {
+    header: StockMovementHeader
+): Promise<StockMovementItem[]> {
     const params = [
         createParam('lcIdEmpr', 'VarChar', empresa),
-        createParam('lnIdClie', 'Int', filters.worksiteId),
-        createParam('ldMvDtde', 'SmallDatetime', filters.startDate ? format(filters.startDate, 'yyyy-MM-dd') : null),
-        createParam('ldMvDtat', 'SmallDatetime', filters.endDate ? format(filters.endDate, 'yyyy-MM-dd') : null),
-        createParam('lcMvTpme', 'VarChar', filters.type === 'T' ? null : filters.type),
-        createParam('lcMvPesq', 'VarChar', filters.searchType),
-        createParam('lcFuEmpr', 'VarChar', null), // Filtered by UI selection logic usually
-        createParam('lcIdMatr', 'VarChar', null), // "123|456"
-        createParam('lcIdOrds', 'VarChar', null), // "10|11"
+        createParam('lnIdClie', 'Int', header.id_clie),
+        createParam('lcMvTpme', 'VarChar', header.mv_tpme),
+        createParam('ldMvData', 'SmallDatetime', header.mv_data),
+        createParam('lcMvDpar', 'VarChar', header.mv_dpar),
+        createParam('lcFuEmpr', 'VarChar', header.id_empr_func || null),
+        createParam('lnFuMatr', 'Int', header.id_matr_func || 0),
+        createParam('lnIdOrds', 'Int', header.id_ords || 0),
+        createParam('lnCuClie', 'Int', header.id_clie_cost || 0),
     ];
-    
-    // Note: Legacy passes concatenated IDs in `lcIdMatr` / `lcIdOrds`.
-    // We should probably handle that if we implement the multi-select filter.
-    // For now, passing null returns all or we can enhance this service method.
-    
-    return callProcedure<StockMovement>('pesquisaMovimentacoesEstoque', params);
-}
-
-export async function fetchStockMovementDetails(
-    empresa: string,
-    docNum: number,
-    type: string
-): Promise<StockMovement[]> {
-    const params = [
-        createParam('lcIdEmpr', 'VarChar', empresa),
-        createParam('lnIdFili', 'Int', 1), // Hardcoded 1 in legacy
-        createParam('lnMvDocu', 'Int', docNum),
-        createParam('lcMvTpme', 'VarChar', type),
-    ];
-    return callProcedure<StockMovement>('pesquisaMovimentacaoEstoque', params);
+    return callProcedure<StockMovementItem>('pesquisaCadastroEstoqueMovimentacaoEstoque', params);
 }
 
 export async function saveStockMovement(
     userId: string,
     empresa: string,
-    movement: any // Define payload structure
-): Promise<any[]> {
-    // Legacy: `atualizaMovimentacaoEstoque` update header?
-    // or `insereMovimentacaoEstoque`? (Not visible in snippet but implied for creation)
-    // The snippet `CestMvMvto.js` has `atualizaMovimentacaoEstoque` which updates Observation.
-    
+    payload: StockMovementPayload
+): Promise<any> {
+    // Construct items string: "a:ID¢b:QTDE¢c:MOTV£..."
+    const itemsString = payload.items
+        .filter(i => i.mv_qtde > 0)
+        .map(i => `a:${i.id_cest}¢b:${i.mv_qtde}¢c:${(i.mv_motv || '').toUpperCase()}`)
+        .join('£');
+
     const params = [
         createParam('lcIdUser', 'VarChar', userId),
         createParam('lcIdEmpr', 'VarChar', empresa),
-        createParam('lnIdFili', 'Int', 1),
-        createParam('lnMvDocu', 'Int', movement.docNum),
-        createParam('lcMvTpme', 'VarChar', movement.type),
-        createParam('lcMvObse', 'VarChar', movement.observation),
+        createParam('lnIdFili', 'Int', 1), // Default fili 1
+        createParam('lnIdClie', 'Int', payload.id_clie),
+        createParam('lcMvTpme', 'VarChar', payload.mv_tpme),
+        createParam('ldMvData', 'SmallDatetime', payload.mv_data),
+        createParam('lcMvDpar', 'VarChar', payload.mv_dpar),
+        createParam('lcFuEmpr', 'VarChar', payload.id_empr_func || null),
+        createParam('lnFuMatr', 'Int', payload.id_matr_func || 0),
+        createParam('lnIdOrds', 'Int', payload.id_ords || 0),
+        createParam('lcMvObse', 'VarChar', payload.mv_obse),
+        createParam('lcMvMvto', 'VarChar', itemsString),
+        createParam('lnCuClie', 'Int', payload.id_clie_cost || 0),
+        createParam('lcMvLati', 'VarChar', payload.mv_lati || ''),
+        createParam('lcMvLong', 'VarChar', payload.mv_long || ''),
+        createParam('lnMvFaci', 'Int', 0), // Default 0 for now (no facial auth)
     ];
-    return callProcedure('atualizaMovimentacaoEstoque', params);
+
+    return callProcedure('insereMovimentacaoEstoque', params);
 }

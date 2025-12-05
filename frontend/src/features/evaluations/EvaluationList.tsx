@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useEvaluations, useEvaluationWorksites } from './useEvaluations';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
@@ -8,36 +8,77 @@ import { jsonDate, brDecimal } from '../../utils/formatters';
 
 export const EvaluationList: React.FC = () => {
     const navigate = useNavigate();
-    
+    const location = useLocation();
+    const state = location.state as {
+        employeeId?: number,
+        employeeName?: string,
+        employeeFunc?: string, // If passed
+        employeeMatr?: number // If passed
+    } | undefined;
+
     // Filter State
-    const [startDate, setStartDate] = useState<Date>(subMonths(new Date(), 1));
-    const [endDate, setEndDate] = useState<Date>(new Date());
+    // If coming from Employee History, default dates to null/empty to show all history?
+    // Legacy `CadtCnAval` sends null dates.
+    const [startDate, setStartDate] = useState<Date | null>(state?.employeeName ? null : subMonths(new Date(), 1));
+    const [endDate, setEndDate] = useState<Date | null>(state?.employeeName ? null : new Date());
     const [selectedWorksite, setSelectedWorksite] = useState<string>('0');
+    const [employeeName, setEmployeeName] = useState<string>(state?.employeeName || '');
     
     // Derived Filters
     const filters = useMemo(() => ({
         startDate,
         endDate,
         worksiteId: parseInt(selectedWorksite) || null,
-        employeeId: null
-    }), [startDate, endDate, selectedWorksite]);
+        employeeId: state?.employeeId || null,
+        employeeName: employeeName || null
+    }), [startDate, endDate, selectedWorksite, employeeName, state?.employeeId]);
 
     const { evaluations, isLoading } = useEvaluations(filters);
-    const { worksites } = useEvaluationWorksites(startDate, endDate); // Used for filter dropdown
+    // Worksites for filter dropdown - might strictly need date range? Legacy `pesquisaObrasAvaliadas` uses dates.
+    // If dates are null, it might return all?
+    const { worksites } = useEvaluationWorksites(startDate || undefined, endDate || undefined);
+
+    // Reset filters when state changes (e.g. navigation)
+    useEffect(() => {
+        if (state?.employeeName) {
+            setEmployeeName(state.employeeName);
+            setStartDate(null);
+            setEndDate(null);
+            setSelectedWorksite('0');
+        }
+    }, [state]);
 
     // Handlers
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (d: Date) => void) => {
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (d: Date | null) => void) => {
         if (e.target.value) {
             const [y, m, d] = e.target.value.split('-').map(Number);
             setter(new Date(y, m - 1, d));
+        } else {
+            setter(null);
         }
+    };
+
+    const clearEmployeeFilter = () => {
+        setEmployeeName('');
+        // Clear history state and reset dates to default
+        navigate(location.pathname, { replace: true, state: {} });
+        setStartDate(subMonths(new Date(), 1));
+        setEndDate(new Date());
     };
 
     return (
         <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
             {/* Header & Actions */}
             <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
-                <h1 className="text-xl font-bold text-slate-800">Avaliações de Desempenho</h1>
+                <div className="flex flex-col">
+                    <h1 className="text-xl font-bold text-slate-800">Avaliações de Desempenho</h1>
+                    {state?.employeeName && (
+                        <div className="text-sm text-slate-600 mt-1">
+                            Histórico de: <span className="font-bold text-blue-800">{state.employeeName}</span>
+                            {state.employeeFunc && ` - ${state.employeeFunc}`}
+                        </div>
+                    )}
+                </div>
                 <button
                     onClick={() => navigate('/avaliacoes/nova')}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
@@ -47,17 +88,17 @@ export const EvaluationList: React.FC = () => {
             </div>
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white p-4 rounded-lg shadow grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <Input
                     type="date"
                     label="Data Inicial"
-                    value={format(startDate, 'yyyy-MM-dd')}
+                    value={startDate ? format(startDate, 'yyyy-MM-dd') : ''}
                     onChange={(e) => handleDateChange(e, setStartDate)}
                 />
                 <Input
                     type="date"
                     label="Data Final"
-                    value={format(endDate, 'yyyy-MM-dd')}
+                    value={endDate ? format(endDate, 'yyyy-MM-dd') : ''}
                     onChange={(e) => handleDateChange(e, setEndDate)}
                 />
                 <Select
@@ -69,6 +110,26 @@ export const EvaluationList: React.FC = () => {
                     value={selectedWorksite}
                     onChange={(e) => setSelectedWorksite(e.target.value)}
                 />
+
+                {/* Employee Filter Indicator */}
+                {employeeName && (
+                    <div className="flex flex-col">
+                        <label className="text-sm font-medium text-slate-700 mb-1">Filtro Ativo</label>
+                        <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+                             <div className="flex flex-col overflow-hidden">
+                                <span className="text-xs text-blue-600 uppercase font-bold">Funcionário</span>
+                                <span className="text-sm font-semibold text-blue-800 truncate" title={employeeName}>{employeeName}</span>
+                             </div>
+                             <button
+                                onClick={clearEmployeeFilter}
+                                className="ml-2 text-blue-400 hover:text-blue-600 font-bold px-2"
+                                title="Limpar filtro"
+                             >
+                                ✕
+                             </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* List */}
@@ -76,7 +137,7 @@ export const EvaluationList: React.FC = () => {
                 {isLoading ? (
                     <div className="text-center py-12 text-slate-400">Carregando avaliações...</div>
                 ) : evaluations.length === 0 ? (
-                    <div className="text-center py-12 text-slate-400">Nenhuma avaliação encontrada no período.</div>
+                    <div className="text-center py-12 text-slate-400">Nenhuma avaliação encontrada.</div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full text-sm text-left text-slate-600">
