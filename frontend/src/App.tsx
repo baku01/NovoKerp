@@ -23,6 +23,7 @@ import { StockPositionList } from './features/stock-position/StockPositionList';
 import { StockMovementForm } from './features/stock-movement/StockMovementForm';
 import { PurchasingList } from './features/purchasing/PurchasingList';
 import { ProductionOrderList } from './features/production-orders/ProductionOrderList';
+import { DocumentBrowser } from './features/documents/DocumentBrowser';
 import './index.css';
 
 // Protected Route wrapper
@@ -217,6 +218,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProductionOrderList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/documentos"
+            element={
+              <ProtectedRoute>
+                <DocumentBrowser />
               </ProtectedRoute>
             }
           />
