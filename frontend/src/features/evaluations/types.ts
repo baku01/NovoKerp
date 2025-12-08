@@ -28,6 +28,8 @@ export interface Evaluation {
     
     av_sgsl: number; // Suggested Salary
     av_obse: string; // Observations
+    fu_empr?: string; // Company ID
+    [key: string]: string | number | undefined; // Allow dynamic access
 }
 
 export interface EvaluationWorksite {

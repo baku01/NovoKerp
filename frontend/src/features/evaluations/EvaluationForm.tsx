@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAllWorksites, useEmployeeSearch, useEvaluationMutations } from './useEvaluations';
 import { Input } from '../../components/ui/Input';
@@ -36,71 +36,51 @@ export const EvaluationForm: React.FC = () => {
     const isEdit = id !== 'nova' && !!existingData;
 
     // State
-    const [date, setDate] = useState<Date>(new Date());
-    const [worksiteId, setWorksiteId] = useState<string>('');
+    const [date, setDate] = useState<Date>(() => {
+        if (isEdit && existingData) {
+            try { return new Date(existingData.av_data); } catch { return new Date(); }
+        }
+        return new Date();
+    });
+
+    const [worksiteId, setWorksiteId] = useState<string>(
+        isEdit && existingData ? existingData.id_clie.toString() : ''
+    );
     
     // Employee Search State
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedEmployee, setSelectedEmployee] = useState<{id: number, name: string, func: string, empr: string} | null>(null);
+    const [selectedEmployee, setSelectedEmployee] = useState<{id: number, name: string, func: string, empr: string} | null>(
+        isEdit && existingData ? {
+            id: existingData.id_matr,
+            name: existingData.fu_nome,
+            func: existingData.fu_func,
+            empr: existingData.fu_empr || ''
+        } : null
+    );
     
     // Form Data
-    const [scores, setScores] = useState<Record<string, number>>({});
-    const [salary, setSalary] = useState<string>('');
-    const [observations, setObservations] = useState('');
+    const [scores, setScores] = useState<Record<string, number>>(() => {
+        const newScores: Record<string, number> = {};
+        if (isEdit && existingData) {
+            [...SCORE_FIELDS, ...TECHNICAL_FIELDS].forEach(f => {
+                const val = existingData[f.key];
+                newScores[f.key] = typeof val === 'number' ? val : 0;
+            });
+        }
+        return newScores;
+    });
+
+    const [salary, setSalary] = useState<string>(
+        isEdit && existingData ? existingData.av_sgsl.toString() : ''
+    );
+    const [observations, setObservations] = useState(
+        isEdit && existingData ? existingData.av_obse : ''
+    );
 
     // Hooks
     const { worksites } = useAllWorksites();
     const { saveEvaluation, deleteEvaluation, isSaving, isDeleting } = useEvaluationMutations();
     const { data: employees = [] } = useEmployeeSearch(parseInt(worksiteId) || 0, searchTerm);
-
-    // Initialize
-    useEffect(() => {
-        if (isEdit && existingData) {
-            try {
-                setDate(new Date(existingData.av_data));
-            } catch (e) {}
-            
-            setWorksiteId(existingData.id_clie.toString()); // Note: using id_clie or id_cadt? Legacy uses id_cadt/id_clie pair.
-            // Legacy: `loSlObra.value.split("/")[0]` -> id_clie.
-            // Service saves `lnIdClie`.
-            // But `pesquisaObrasDefinidas` returns `id_cadt` as ID usually.
-            // Wait, `pesquisaObrasDefinidas` returns `id_clie` AND `id_cadt`.
-            // If `EvaluationWorksite` interface has both.
-            // We should probably store both or find the worksite that matches.
-            // For simplicity, assume worksiteId maps to `id_cadt` in the dropdown list?
-            // Actually, `fetchAllWorksites` uses `pesquisaObrasDefinidas`. 
-            // Let's check `EvaluationList` implementation. It uses `id_clie` for value.
-            // So `setWorksiteId(existingData.id_clie.toString())`.
-            
-            setSelectedEmployee({
-                id: existingData.id_matr,
-                name: existingData.fu_nome,
-                func: existingData.fu_func,
-                empr: '' // Not available in Evaluation type but needed for update?
-                // Legacy `insereAvaliacao` uses `lcFuEmpr`.
-                // If updating, we need it.
-                // We might need to fetch it or assume it's not changed if not provided?
-                // Legacy `goCdFuncCFA` has `fu_empr`.
-                // `pesquisaAvaliacoes` returns `Evaluation` which lacks `fu_empr`.
-                // We might need to add it to `Evaluation` interface or fetch it.
-                // Let's add it to interface if possible or derive it.
-                // For now, I will assume we need to fetch or it's optional on update?
-                // Legacy: `lcFuEmpr = goCdFuncCFA.fu_empr`.
-                // If I edit an existing one, `goCdFuncCFA` might be empty? 
-                // Legacy `CadtFuAval` loads data from `sessionStorage` which came from `consultaAvaliacaoCCA`.
-                // `gmWkRsqlCCA` has `fu_empr`? Check `pesquisaAvaliacoes`.
-                // It likely returns it. I'll add to interface.
-            });
-
-            const newScores: Record<string, number> = {};
-            [...SCORE_FIELDS, ...TECHNICAL_FIELDS].forEach(f => {
-                newScores[f.key] = (existingData as any)[f.key] || 0;
-            });
-            setScores(newScores);
-            setSalary(existingData.av_sgsl.toString());
-            setObservations(existingData.av_obse);
-        }
-    }, [isEdit, existingData]);
 
     // Average Score
     const averageScore = useMemo(() => {
@@ -112,14 +92,9 @@ export const EvaluationForm: React.FC = () => {
         e.preventDefault();
         if (!selectedEmployee || !worksiteId) return;
 
-        // Need `fu_empr`
-        // If editing, it might be missing from `selectedEmployee` if we just set ID/Name.
-        // We need to ensure `fu_empr` is available.
-        // If user searched, `employees` list has it.
-        // If loaded from existing, we need to check if `existingData` has it (I'll add it to type).
-        const fuEmpr = selectedEmployee.empr || (existingData as any)?.fu_empr || '';
+        const fuEmpr = selectedEmployee.empr || existingData?.fu_empr || '';
 
-        const payload: any = {
+        const payload = {
             id_aval: isEdit ? existingData?.id_aval : 0,
             av_data: format(date, 'yyyy-MM-dd'),
             id_clie: parseInt(worksiteId),
@@ -135,6 +110,7 @@ export const EvaluationForm: React.FC = () => {
             alert('Avaliação salva com sucesso!');
             navigate(-1);
         } catch (err) {
+            console.error(err);
             alert('Erro ao salvar avaliação.');
         }
     };
@@ -146,6 +122,7 @@ export const EvaluationForm: React.FC = () => {
                 await deleteEvaluation(existingData.id_aval);
                 navigate(-1);
             } catch (err) {
+                console.error(err);
                 alert('Erro ao excluir.');
             }
         }

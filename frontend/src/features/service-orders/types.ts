@@ -75,3 +75,51 @@ export interface AppointmentRecord {
     // Helper for calculation
     ap_jdms?: number; // Jornada do Mês? (Calculated)
 }
+
+export interface ServiceOrder {
+    id_ords: number;
+    id_parm?: string;
+    os_nume: string;
+    os_tipo: number;
+    os_resp: string;
+    oc_nume: string;
+    os_ncli: string;
+    os_ncon: string;
+    os_desc: string;
+}
+
+export interface Comment {
+    id_comt?: number;
+    id_ords: number;
+    id_clie: number;
+    cm_data: string;
+    cm_desc: string;
+}
+
+export interface Task {
+    id_ativ: number;
+    id_ords: number;
+    id_excl?: number;
+    at_tipo: string;
+    at_deno: string;
+    ta_codi?: string;
+    at_dres: number;
+    ap_dres: number;
+}
+
+export type ServiceOrderType = 'EMPREITA' | 'HORA HOMEM' | 'LOCAÇÃO' | 'PRODUTO';
+
+export const getServiceOrderTypeName = (tipo: number): ServiceOrderType | string => {
+    switch (tipo) {
+        case 1:
+            return 'EMPREITA';
+        case 2:
+            return 'HORA HOMEM';
+        case 3:
+            return 'LOCAÇÃO';
+        case 4:
+            return 'PRODUTO';
+        default:
+            return '';
+    }
+};

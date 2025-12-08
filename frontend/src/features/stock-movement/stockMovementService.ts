@@ -1,5 +1,6 @@
 import { callProcedure, createParam } from '../../api/procedures';
 import { StockMovementItem, StockMovementHeader, StockMovementPayload } from './types';
+import { apiClient } from '../../api/client'; // Import apiClient
 
 export async function fetchStockItemsForMovement(
     empresa: string,
@@ -23,7 +24,7 @@ export async function saveStockMovement(
     userId: string,
     empresa: string,
     payload: StockMovementPayload
-): Promise<any> {
+): Promise<unknown> { // Changed to unknown
     // Construct items string: "a:ID¢b:QTDE¢c:MOTV£..."
     const itemsString = payload.items
         .filter(i => i.mv_qtde > 0)
@@ -50,4 +51,21 @@ export async function saveStockMovement(
     ];
 
     return callProcedure('insereMovimentacaoEstoque', params);
+}
+
+export async function uploadStockMovementPhoto(
+    imageDataUrl: string, // Base64 image
+    workPath: string,     // e.g., "facial/EMPRMATR/"
+    fileName: string      // e.g., "EMPRMATR.png"
+): Promise<unknown> { // Changed to unknown
+    const payload = {
+        lcBsFoto: imageDataUrl,
+        lcWkPath: workPath,
+        lcWkFoto: fileName,
+    };
+
+    // The legacy code used "insereFoto" as the URL path after the base URL.
+    // Assuming the API endpoint is still `/insereFoto`.
+    const response = await apiClient.post('/insereFoto', payload);
+    return response.data;
 }

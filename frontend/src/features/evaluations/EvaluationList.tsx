@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEvaluations, useEvaluationWorksites } from './useEvaluations';
 import { Input } from '../../components/ui/Input';
@@ -37,16 +37,6 @@ export const EvaluationList: React.FC = () => {
     // Worksites for filter dropdown - might strictly need date range? Legacy `pesquisaObrasAvaliadas` uses dates.
     // If dates are null, it might return all?
     const { worksites } = useEvaluationWorksites(startDate || undefined, endDate || undefined);
-
-    // Reset filters when state changes (e.g. navigation)
-    useEffect(() => {
-        if (state?.employeeName) {
-            setEmployeeName(state.employeeName);
-            setStartDate(null);
-            setEndDate(null);
-            setSelectedWorksite('0');
-        }
-    }, [state]);
 
     // Handlers
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (d: Date | null) => void) => {

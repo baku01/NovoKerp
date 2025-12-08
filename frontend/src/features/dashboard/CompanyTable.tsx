@@ -54,7 +54,7 @@ export const CompanyTable: React.FC = () => {
                             { value: 'os_phcn', label: 'Horas Planejadas' },
                         ]}
                         value={hoursType}
-                        onChange={(e) => setHoursType(e.target.value as any)}
+                        onChange={(e) => setHoursType(e.target.value as 'oc_qthr' | 'os_phcn')}
                         className="max-w-xs"
                     />
                 </div>

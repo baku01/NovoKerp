@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useServiceOrderList } from './useServiceOrderList';
+import { ServiceOrderSummary } from './serviceOrderListService';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { CircularGauge } from '../../components/ui/CircularGauge';
@@ -133,7 +134,7 @@ const SummaryItem = ({ label, value, color = 'text-slate-800', colSpan = 1 }: { 
     </div>
 );
 
-const OrderCard = ({ order, hoursType, onClick, onPlanClick }: { order: any, hoursType: string, onClick: () => void, onPlanClick: () => void }) => {
+const OrderCard = ({ order, hoursType, onClick, onPlanClick }: { order: ServiceOrderSummary, hoursType: string, onClick: () => void, onPlanClick: () => void }) => {
     // Calculate percentages
     // Legacy logic:
     // lnOpQthr = parseInt(gmDsOrdsDOL[i][lcSlHora]); (Orçadas or Planejadas)

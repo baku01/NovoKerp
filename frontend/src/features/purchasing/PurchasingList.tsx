@@ -105,7 +105,7 @@ export const PurchasingList: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <Input type="date" label="Início" value={format(startDate, 'yyyy-MM-dd')} onChange={e => e.target.value && setStartDate(new Date(e.target.value))} />
                     <Input type="date" label="Fim" value={format(endDate, 'yyyy-MM-dd')} onChange={e => e.target.value && setEndDate(new Date(e.target.value))} />
-                    <Select label="Filtrar Data Por" options={[{value: 'PC_DATA', label: 'Lançamento'}, {value: 'PC_DTEN', label: 'Entrega'}]} value={dateType} onChange={e => setDateType(e.target.value as any)} />
+                    <Select label="Filtrar Data Por" options={[{value: 'PC_DATA', label: 'Lançamento'}, {value: 'PC_DTEN', label: 'Entrega'}]} value={dateType} onChange={e => setDateType(e.target.value as 'PC_DATA' | 'PC_DTEN')} />
                     <Select label="Status" options={[{value: '0', label: 'Pendentes'}, {value: '1', label: 'Aprovados'}, {value: '2', label: 'Desaprovados'}, {value: '3', label: 'Todos'}]} value={status} onChange={e => setStatus(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">

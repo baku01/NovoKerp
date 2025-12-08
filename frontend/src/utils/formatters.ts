@@ -93,7 +93,7 @@ export function jsonDate(isoDate: string | null): string {
         if (date.getFullYear() === 1900) return '';
 
         return date.toLocaleDateString('pt-BR');
-    } catch (error) {
+    } catch {
         return '';
     }
 }
@@ -113,7 +113,7 @@ export function jsonHora(isoDate: string | null): string {
         const timeStr = `${hours}:${minutes}:${seconds}`;
 
         return timeStr === '00:00:00' ? '' : timeStr;
-    } catch (error) {
+    } catch {
         return '';
     }
 }

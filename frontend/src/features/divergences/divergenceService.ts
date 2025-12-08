@@ -1,11 +1,11 @@
 import { callProcedure, createParam } from '../../api/procedures';
-import { AppointmentDivergence, StatusOption, DivergenceFilters } from './types';
+import { StatusOption, DivergenceFilters } from './types';
 import { format } from 'date-fns';
 
 export async function fetchDivergences(
     empresa: string,
     filters: DivergenceFilters
-): Promise<AppointmentDivergence[]> {
+): Promise<unknown[]> {
     // Legacy uses `pesquisaApontamentosAplicativoSecullumPeriodo`
     // It returns ALL records, and filtering is done client-side in legacy `ComlApDvrg.js`.
     // `lmWkRsql` returns records with `ap_tipo` ('A' for App, 'S' for Secullum).
@@ -34,7 +34,7 @@ export async function fetchDivergences(
     // The legacy procedure returns a flat list of "App" and "Secullum" records.
     // We need to process this.
     // I'll define a raw type for the procedure result.
-    return callProcedure<any>('pesquisaApontamentosAplicativoSecullumPeriodo', params);
+    return callProcedure<unknown>('pesquisaApontamentosAplicativoSecullumPeriodo', params);
 }
 
 export async function fetchDivergenceWorksites(

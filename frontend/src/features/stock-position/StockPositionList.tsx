@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useStockPosition, useWorksites, useServiceOrders, useEmployees } from './useStockPosition';
-import { StockPositionFilters } from './types';
+import { StockPosition, StockPositionFilters } from './types';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { brDecimal, brMoney } from '../../utils/formatters';
@@ -61,7 +61,7 @@ export const StockPositionList: React.FC = () => {
     const groupedData = useMemo(() => {
         if (!stockData) return [];
 
-        const groups: { [key: string]: { items: any[], totalQty: number, totalCost: number } } = {};
+        const groups: { [key: string]: { items: (StockPosition & { calcQty: number, calcCost: number })[], totalQty: number, totalCost: number } } = {};
 
         stockData.forEach(item => {
             const groupName = item.al_deno || 'OUTROS';

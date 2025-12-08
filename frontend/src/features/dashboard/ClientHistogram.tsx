@@ -1,13 +1,31 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHistogram } from './useHistogram';
+import { HistogramResource } from './histogramService';
 import { Input } from '../../components/ui/Input';
 import { format } from 'date-fns';
 import { ResponsiveContainer, Treemap, Tooltip } from 'recharts';
 
+interface HistogramItem extends HistogramResource {
+    name: string;
+    size: number;
+    totalReal: number;
+}
+
+interface CustomizedContentProps {
+    depth: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    name: string;
+    item: HistogramItem;
+    onEditName: (item: HistogramResource) => void;
+}
+
 // Custom Content for Treemap Node
-const CustomizedContent = (props: any) => {
-    const { depth, x, y, width, height, name, item, onEditName } = props;
+const CustomizedContent = (props: unknown) => {
+    const { depth, x, y, width, height, name, item, onEditName } = props as CustomizedContentProps;
 
     // Legacy: id_novo > 0 -> white text
     const textColor = item?.id_novo && item.id_novo > 0 ? 'text-white' : 'text-slate-100';
@@ -57,7 +75,12 @@ const CustomizedContent = (props: any) => {
     );
 };
 
-const CustomTooltip = ({ active, payload }: any) => {
+interface CustomTooltipProps {
+    active?: boolean;
+    payload?: { payload: HistogramItem }[];
+}
+
+const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
@@ -108,7 +131,7 @@ export const ClientHistogram: React.FC = () => {
         }
     };
 
-    const handleEditName = async (item: any) => {
+    const handleEditName = async (item: HistogramResource) => {
         const newName = prompt("Nome da obra no histograma:", item.cl_hgnm || item.cl_fant);
         if (newName !== null && newName.trim() !== "") {
             await updateName({ 
@@ -118,7 +141,7 @@ export const ClientHistogram: React.FC = () => {
         }
     };
 
-    const handleNodeClick = (node: any) => {
+    const handleNodeClick = (node: HistogramResource) => {
         if (node && node.id_cadt) {
             navigate('/funcionarios', { 
                 state: { 

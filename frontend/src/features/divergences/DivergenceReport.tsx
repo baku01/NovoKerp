@@ -75,7 +75,7 @@ export const DivergenceReport: React.FC = () => {
                         className="w-32"
                         options={[{ value: 'NOME', label: 'Nome' }, { value: 'ID_MATR', label: 'Matrícula' }]}
                         value={searchType}
-                        onChange={(e) => setSearchType(e.target.value as any)}
+                        onChange={(e) => setSearchType(e.target.value as 'NOME' | 'ID_MATR')}
                     />
                     <Input
                         placeholder="Pesquisar funcionário..."

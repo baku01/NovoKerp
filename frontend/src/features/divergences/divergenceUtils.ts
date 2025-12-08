@@ -12,7 +12,15 @@ function timeNumberToDate(dateBase: Date, timeVal: number): Date {
     return setMinutes(setHours(date, hours), minutes);
 }
 
-export function calculateMinutesFromRecord(record: any): number {
+interface DivergenceRecord {
+    ap_data: string;
+    ap_hent: number;
+    ap_hiin: number;
+    ap_htin: number;
+    ap_hter: number;
+}
+
+export function calculateMinutesFromRecord(record: DivergenceRecord): number {
     // Record has ap_hent, ap_hiin, ap_htin, ap_hter (decimals)
     // ap_data (string)
     const baseDate = parseISO(record.ap_data);

@@ -104,7 +104,7 @@ export async function saveAppointment(
     userId: string,
     empresa: string,
     payload: AppointmentPayload
-): Promise<any[]> {
+): Promise<unknown[]> {
     const params = [
         createParam('lcIdUser', 'VarChar', userId),
         createParam('lcIdEmpr', 'VarChar', empresa),

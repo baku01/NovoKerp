@@ -4,6 +4,22 @@ import { DivergenceFilters, AppointmentDivergence } from './types';
 import { fetchDivergences, fetchDivergenceWorksites, fetchStatusOptions } from './divergenceService';
 import { calculateMinutesFromRecord } from './divergenceUtils'; // We need to create this
 
+interface RawDivergence {
+    ap_tipo: 'A' | 'S';
+    id_matr: number | string;
+    fu_empr: string;
+    ap_data: string;
+    fu_nome: string;
+    em_fant: string;
+    id_clie: number;
+    cl_fant: string;
+    id_strc: number;
+    ap_hent: number;
+    ap_hiin: number;
+    ap_htin: number;
+    ap_hter: number;
+}
+
 export function useDivergences(filters: DivergenceFilters) {
     const empresaId = useUserStore((state) => state.empresa);
     const enabled = !!empresaId && !!filters.startDate && !!filters.endDate;
@@ -23,7 +39,7 @@ export function useDivergences(filters: DivergenceFilters) {
     const query = useQuery({
         queryKey: ['divergences', 'list', empresaId, filters],
         queryFn: async () => {
-            const rawData = await fetchDivergences(empresaId, filters);
+            const rawData = await fetchDivergences(empresaId, filters) as RawDivergence[];
             // Process raw data to find divergences
             return processDivergences(rawData, filters.statusId);
         },
@@ -39,7 +55,7 @@ export function useDivergences(filters: DivergenceFilters) {
 }
 
 // Logic ported from legacy `pesquisaApontamentosAplicativoSecullumPeriodoCAD`
-function processDivergences(rawData: any[], statusFilter: number | null): AppointmentDivergence[] {
+function processDivergences(rawData: RawDivergence[], statusFilter: number | null): AppointmentDivergence[] {
     const appRecords = rawData.filter(r => r.ap_tipo === 'A');
     const secuRecords = rawData.filter(r => r.ap_tipo === 'S');
     const divergences: AppointmentDivergence[] = [];

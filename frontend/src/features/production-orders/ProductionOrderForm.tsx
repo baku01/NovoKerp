@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ProductionOrder, ProductionOrderInput, ProductionOrderUpdateInput, ProductionOrderItemInput } from './types';
 import { useProductionOrderDetail, useProductionOrderMutations } from './useProductionOrders';
 import { Input } from '../../components/ui/Input';
@@ -14,7 +14,7 @@ interface ProductionOrderFormProps {
     onSaved: () => void;
 }
 
-export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({ 
+const ProductionOrderFormContent: React.FC<ProductionOrderFormProps> = ({ 
     order, 
     worksiteId, 
     worksiteName, 
@@ -38,15 +38,15 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
     const { items, situations, projects, refetch } = useProductionOrderDetail(order?.po_nume || null);
 
     // Form State (Header)
-    const [poNume, setPoNume] = useState<number>(order?.po_nume || 0);
-    const [osNume, setOsNume] = useState<string>(order?.os_nume || ''); // Proposal Num
+    const [poNume] = useState<number>(order?.po_nume || 0);
+    const [osNume, setOsNume] = useState<string>(order?.os_nume || '');
     const [poDesc, setPoDesc] = useState<string>(order?.po_desc || '');
     const [poPlan, setPoPlan] = useState<string>(order?.po_plan || '');
     const [poSoli, setPoSoli] = useState<string>(order?.po_soli || '');
     const [poDtnc, setPoDtnc] = useState<Date>(order?.po_dtnc ? new Date(order.po_dtnc) : new Date());
     const [poDtpi, setPoDtpi] = useState<Date>(order?.po_dtpi ? new Date(order.po_dtpi) : new Date());
     const [poHrdi, setPoHrdi] = useState<number>(order?.po_hrdi || 0);
-    const [psSitu, setPsSitu] = useState<string>(order?.ps_situ || ''); // Current status
+    const [psSitu, setPsSitu] = useState<string>(order?.ps_situ || '');
 
     // New Item State
     const [newItemDesc, setNewItemDesc] = useState<string>('');
@@ -56,20 +56,6 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
 
     // Derived
     const isEditing = !!order;
-
-    useEffect(() => {
-        if (order) {
-            setPoNume(order.po_nume);
-            setOsNume(order.os_nume);
-            setPoDesc(order.po_desc);
-            setPoPlan(order.po_plan);
-            setPoSoli(order.po_soli);
-            setPoDtnc(new Date(order.po_dtnc));
-            setPoDtpi(new Date(order.po_dtpi));
-            setPoHrdi(order.po_hrdi);
-            setPsSitu(order.ps_situ);
-        }
-    }, [order]);
 
     const handleSaveHeader = () => {
         if (isEditing) {
@@ -92,7 +78,7 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
         } else {
             const insertData: ProductionOrderInput = {
                 id_clie: worksiteId,
-                os_nume: osNume, // This usually comes from proposal selection, might need more logic
+                os_nume: osNume,
                 po_desc: poDesc,
                 po_plan: poPlan,
                 po_soli: poSoli,
@@ -100,13 +86,12 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
                 po_dtpi: poDtpi,
                 po_hrdi: poHrdi,
                 ps_situ: psSitu,
-                pi_desc: newItemDesc // Initial item
+                pi_desc: newItemDesc
             };
             createOrder.mutate(insertData, {
-                onSuccess: (_) => {
+                onSuccess: () => {
                     alert('Ordem criada com sucesso!');
                     onSaved();
-                    // Maybe switch to edit mode with the new ID?
                 },
                 onError: (err) => alert('Erro ao criar ordem: ' + err)
             });
@@ -160,7 +145,7 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
         createSituation.mutate({ poNum: poNume, situation: newSituation }, {
             onSuccess: () => {
                 setNewSituation('');
-                setPsSitu(newSituation); // Update local header view
+                setPsSitu(newSituation);
                 refetch();
             }
         });
@@ -189,12 +174,10 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
         });
     };
 
-    // Helper for rendering date
     const formatDate = (d: Date) => format(d, 'yyyy-MM-dd');
 
     return (
         <div className="flex flex-col h-full bg-white rounded-lg shadow overflow-hidden">
-            {/* Toolbar */}
             <div className="p-4 bg-slate-100 border-b border-slate-200 flex justify-between items-center">
                 <h2 className="font-bold text-lg text-slate-800">
                     {isEditing ? `Editando OS #${poNume}` : 'Nova Ordem de Serviço'}
@@ -209,7 +192,6 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                {/* Header Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <Input label="Obra (Read-only)" value={worksiteName || String(worksiteId)} readOnly />
                     <Input 
@@ -233,12 +215,9 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
                     )}
                 </div>
 
-                {/* Sub-sections (Only visible if Editing) */}
                 {isEditing && (
                     <>
                         <hr />
-                        
-                        {/* Items */}
                         <div>
                             <h3 className="font-bold text-slate-700 mb-2">Itens</h3>
                             <div className="flex space-x-2 mb-2">
@@ -264,7 +243,6 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
 
                         <hr />
 
-                        {/* Situations */}
                         <div>
                             <h3 className="font-bold text-slate-700 mb-2">Situações</h3>
                             <div className="flex space-x-2 mb-2">
@@ -293,7 +271,6 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
 
                         <hr />
 
-                        {/* Projects (Documents) */}
                         <div>
                             <h3 className="font-bold text-slate-700 mb-2">Projetos (Anexos)</h3>
                             <div className="mb-2">
@@ -304,7 +281,6 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
                                     <li key={idx} className="p-2 border rounded flex justify-between items-center bg-slate-50">
                                         <a 
                                             href="#" 
-                                            // onClick to open? Link logic needed?
                                             className="text-blue-600 hover:underline text-sm font-medium"
                                         >
                                             {proj.ex_sdir}
@@ -320,5 +296,14 @@ export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = ({
                 )}
             </div>
         </div>
+    );
+};
+
+export const ProductionOrderForm: React.FC<ProductionOrderFormProps> = (props) => {
+    return (
+        <ProductionOrderFormContent 
+            key={props.order?.po_nume || 'new'} 
+            {...props} 
+        />
     );
 };

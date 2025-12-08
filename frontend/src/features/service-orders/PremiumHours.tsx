@@ -71,7 +71,7 @@ export const PremiumHours: React.FC = () => {
             // Legacy sets newDate to positionDate after insert? 
             // "loDtData.value = loDtDat0.value;"
             setNewDate(positionDate);
-        } catch (err: any) {
+        } catch (err: unknown) {
             setError('Erro ao inserir horas prêmio. Tente novamente.');
             console.error(err);
         }
@@ -82,6 +82,7 @@ export const PremiumHours: React.FC = () => {
             try {
                 await deletePremiumHour({ idHrpr, recordDate: date });
             } catch (err) {
+                console.error(err);
                 alert('Erro ao excluir registro.');
             }
         }

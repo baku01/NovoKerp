@@ -24,6 +24,7 @@ export const DailyReportPhotos: React.FC<Props> = ({ report, onClose }) => {
                 try {
                     await uploadPhoto(base64);
                 } catch (err) {
+                    console.error(err);
                     alert('Erro ao enviar foto.');
                 }
             }
@@ -39,6 +40,7 @@ export const DailyReportPhotos: React.FC<Props> = ({ report, onClose }) => {
             try {
                 await deletePhoto(fileName);
             } catch (err) {
+                console.error(err);
                 alert('Erro ao excluir foto.');
             }
         }

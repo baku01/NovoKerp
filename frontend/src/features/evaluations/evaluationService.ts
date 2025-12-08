@@ -63,7 +63,7 @@ export async function saveEvaluation(
     userId: string,
     empresa: string,
     evaluation: Partial<Evaluation>
-): Promise<any[]> {
+): Promise<unknown[]> {
     // Legacy `insereAvaliacao`
     const params = [
         createParam('lcIdUser', 'VarChar', userId),
@@ -72,7 +72,7 @@ export async function saveEvaluation(
         createParam('ldAvData', 'SmallDatetime', evaluation.av_data || null),
         createParam('lnIdClie', 'Int', evaluation.id_clie || 0),
         createParam('lnIdMatr', 'Int', evaluation.id_matr || 0),
-        createParam('lcFuEmpr', 'VarChar', (evaluation as any).fu_empr || ''), 
+        createParam('lcFuEmpr', 'VarChar', evaluation.fu_empr || ''), 
         
         createParam('lnAvOrga', 'Decimal', evaluation.av_orga || 0),
         createParam('lnAvProd', 'Decimal', evaluation.av_prod || 0),
@@ -99,7 +99,7 @@ export async function saveEvaluation(
 export async function deleteEvaluation(
     empresa: string,
     idAval: number
-): Promise<any[]> {
+): Promise<unknown[]> {
     const params = [
         createParam('lcIdEmpr', 'VarChar', empresa),
         createParam('lnIdAval', 'Int', idAval),

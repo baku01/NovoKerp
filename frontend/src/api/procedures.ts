@@ -18,7 +18,7 @@ export { apiClient };
  * @param params - Array of SQL parameters
  * @returns Promise with the procedure result
  */
-export async function callProcedure<T = any>(
+export async function callProcedure<T = unknown>(
     procName: string,
     params: SqlParam[]
 ): Promise<T[]> {

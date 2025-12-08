@@ -60,7 +60,7 @@ export function useWeeklyResources(
              let endDate: Date;
              try {
                  endDate = new Date(firstRecord.pm_dtat);
-             } catch (e) {
+             } catch {
                  endDate = new Date(); // Fallback
              }
              

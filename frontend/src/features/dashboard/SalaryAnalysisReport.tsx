@@ -14,6 +14,12 @@ import {
 } from 'recharts';
 import { format, subDays, subMonths, subYears, parseISO } from 'date-fns';
 
+interface ChartDataPoint {
+    date: string;
+    originalDate: string;
+    [key: string]: string | number;
+}
+
 const PERIOD_OPTIONS = [
     { value: '30D', label: '30 Dias' },
     { value: '6M', label: '6 Meses' },
@@ -59,7 +65,7 @@ export const SalaryAnalysisReport: React.FC = () => {
         if (!chartData.length) return [];
 
         // Group by Date
-        const grouped: Record<string, any> = {};
+        const grouped: Record<string, ChartDataPoint> = {};
         const allFunctions = new Set<string>();
 
         chartData.forEach(item => {

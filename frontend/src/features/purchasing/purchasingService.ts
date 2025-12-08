@@ -51,7 +51,7 @@ export async function approvePurchaseOrder(
     userId: string,
     empresa: string,
     ids: number[]
-): Promise<any> {
+): Promise<unknown> {
     // Legacy passes comma separated IDs in `lcIdPcom`
     const idList = ids.join(', ');
     const params = [
@@ -83,7 +83,7 @@ export async function disapprovePurchaseOrder(
     userId: string,
     empresa: string,
     ids: number[]
-): Promise<any> {
+): Promise<unknown> {
     const idList = ids.join(', ');
     const params = [
         createParam('lcIdUser', 'VarChar', userId),

@@ -7,8 +7,16 @@ import { useServiceOrders, useEmployees } from '../stock-position/useStockPositi
 import { useStockItems, useStockMovementMutation } from './useStockMovement';
 import { StockMovementHeader, StockMovementItem } from './types';
 import { brDecimal, brMoney } from '../../utils/formatters';
+import { StockPhotoCapture } from './StockPhotoCapture'; // Import StockPhotoCapture
+import { uploadStockMovementPhoto } from './stockMovementService'; // Import uploadStockMovementPhoto
+import { useUserStore } from '../../stores/useUserStore'; // Import useUserStore
 
 export const StockMovementForm: React.FC = () => {
+    // User Store for company ID and user ID
+    const { user } = useUserStore();
+    const empresa = user?.id_empr || '';
+    const userId = user?.id_user || '';
+
     // Header State
     const [type, setType] = useState<'E' | 'S'>('S'); // Default Exit
     const [date, setDate] = useState<Date>(new Date());
@@ -21,6 +29,8 @@ export const StockMovementForm: React.FC = () => {
     const [costWorksiteId, setCostWorksiteId] = useState<string>('0'); // id_clie for cost
 
     const [observation, setObservation] = useState('');
+    const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null); // New state for captured photo
+    const [isUploadingPhoto, setIsUploadingPhoto] = useState(false); // New state for photo upload status
 
     // Items State
     const [items, setItems] = useState<StockMovementItem[]>([]);
@@ -91,22 +101,46 @@ export const StockMovementForm: React.FC = () => {
             return;
         }
 
-        // Geolocation
-        let lat = '', long = '';
-        if (navigator.geolocation) {
+        // Handle photo upload if a photo is captured
+        if (capturedPhoto && context === 'F' && header.id_empr_func && header.id_matr_func) {
+            setIsUploadingPhoto(true);
             try {
-                const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
-                });
-                lat = pos.coords.latitude.toString();
-                long = pos.coords.longitude.toString();
-            } catch (e) {
-                console.warn("Geolocation failed or denied");
-            }
-        }
-
+                const lcFuEmpr = header.id_empr_func.trim().toUpperCase();
+                const lcFuMatr = header.id_matr_func.toString();
+                const workPath = `facial/${lcFuEmpr}${lcFuMatr}/`;
+                const fileName = `${lcFuEmpr}${lcFuMatr}.png`;
+                
+                await uploadStockMovementPhoto(capturedPhoto, workPath, fileName);
+                alert("Foto salva com sucesso!");
+                    } catch (photoError: unknown) {
+                        console.error("Erro ao salvar a foto:", photoError);
+                        alert("Erro ao salvar a foto. A movimentação não será salva.");
+                        setIsUploadingPhoto(false);
+                        return; // Prevent stock movement save if photo upload fails
+                    } finally {
+                        setIsUploadingPhoto(false);
+                    }
+                } else if (capturedPhoto) {
+                    alert("Não é possível associar a foto sem um funcionário válido no contexto 'Funcionário'. A movimentação não será salva.");
+                    return; // Prevent stock movement save if photo is captured but context is wrong
+                }
+            
+            
+                // Geolocation
+                let lat = '', long = '';
+                if (navigator.geolocation) {
+                    try {
+                        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+                        });
+                        lat = pos.coords.latitude.toString();
+                        long = pos.coords.longitude.toString();
+                    } catch (e: unknown) {
+                        console.warn("Geolocation failed or denied", e);
+                    }
+                }
         try {
-            await saveMovement({
+            await saveMovement(userId, empresa, { // Pass userId and empresa here
                 ...header,
                 mv_lati: lat,
                 mv_long: long,
@@ -116,8 +150,9 @@ export const StockMovementForm: React.FC = () => {
             // Reset form or navigate
             setItems(prev => prev.map(i => ({ ...i, mv_qtde: 0 })));
             setObservation('');
-        } catch (err: any) {
-            alert(`Erro ao salvar: ${err.message || 'Desconhecido'}`);
+            setCapturedPhoto(null); // Clear captured photo after successful save
+        } catch (err: unknown) { // Changed to unknown
+            alert(`Erro ao salvar: ${(err as Error).message || 'Desconhecido'}`);
         }
     };
 
@@ -140,7 +175,7 @@ export const StockMovementForm: React.FC = () => {
                     label="Tipo"
                     options={[{ value: 'E', label: 'ENTRADA' }, { value: 'S', label: 'SAÍDA' }]}
                     value={type}
-                    onChange={(e) => setType(e.target.value as any)}
+                    onChange={(e) => setType(e.target.value as 'E' | 'S')}
                 />
                 <Input
                     type="date"
@@ -158,7 +193,7 @@ export const StockMovementForm: React.FC = () => {
                     label="Destino/Origem"
                     options={[{ value: 'F', label: 'FUNCIONÁRIO' }, { value: 'P', label: 'PROPOSTA' }]}
                     value={context}
-                    onChange={(e) => setContext(e.target.value as any)}
+                    onChange={(e) => setContext(e.target.value as 'F' | 'P')}
                 />
 
                 {context === 'F' && (
@@ -207,6 +242,11 @@ export const StockMovementForm: React.FC = () => {
                     />
                 </div>
             </div>
+
+            {/* Photo Capture */}
+            {context === 'F' && ( // Only show photo capture if context is employee
+                <StockPhotoCapture onCapture={setCapturedPhoto} currentPhoto={capturedPhoto} />
+            )}
 
             {/* Items */}
             <div className="bg-white p-4 rounded-lg shadow flex-1 flex flex-col">
@@ -287,10 +327,10 @@ export const StockMovementForm: React.FC = () => {
                     </div>
                     <button
                         onClick={handleSave}
-                        disabled={isSaving || totalQty === 0}
+                        disabled={isSaving || isUploadingPhoto || totalQty === 0}
                         className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:bg-slate-300 font-bold"
                     >
-                        {isSaving ? 'Salvando...' : 'Salvar Movimentação'}
+                        {isSaving || isUploadingPhoto ? 'Salvando...' : 'Salvar Movimentação'}
                     </button>
                 </div>
             </div>

@@ -32,31 +32,36 @@ export const WeeklyResourcesReport: React.FC = () => {
     // Let's leave empty initially or Select All if convenient. 
     // UX: Usually better to show everything by default.
     
-    useEffect(() => {
-        if (worksites.length > 0 && selectedWorksiteIds.length === 0) {
-             // Optional: Auto-select all or let the hook handle "empty means all"
-             // The hook passes IDs to service. Service sends what is passed.
-             // If service receives empty list, does backend return all?
-             // Legacy: "If lmIdClie.length > 0 ... else nothing".
-             // It seems if nothing selected, it sends empty string. 
-             // Procedure likely handles empty as "All" or "None".
-             // Let's try sending empty (meaning All) first, but looking at legacy `pesquisaQuantidadeRecursosObraFuncaoRealDHS`:
-             // if lmIdClie.length > 0 -> builds list.
-             // if nothing, sends "".
-             // Let's assume empty means All in the backend procedure.
-             // BUT, for the MultiSelect UI, we want to show what's active.
-             // Let's auto-select all worksites with `pd_clie > 0` (pre-selected flag).
-             const preSelected = worksites.filter(w => w.pd_clie > 0).map(w => w.id_clie);
-             if (preSelected.length > 0) setSelectedWorksiteIds(preSelected);
-             else if (worksites.length > 0) setSelectedWorksiteIds(worksites.map(w => w.id_clie)); // Default all if no flag
-        }
-    }, [worksites]); // Only run when worksites load
+    const worksitesInitialized = React.useRef(false);
+    const typesInitialized = React.useRef(false);
 
     useEffect(() => {
-        if (resourceTypes.length > 0 && selectedTypeSglas.length === 0) {
+        if (!worksitesInitialized.current && worksites.length > 0) {
+             const preSelected = worksites.filter(w => w.pd_clie > 0).map(w => w.id_clie);
+             if (preSelected.length > 0) {
+                 // eslint-disable-next-line react-hooks/set-state-in-effect
+                 setSelectedWorksiteIds(preSelected);
+             } else {
+                 // eslint-disable-next-line react-hooks/set-state-in-effect
+                 setSelectedWorksiteIds(worksites.map(w => w.id_clie));
+             }
+             
+             worksitesInitialized.current = true;
+        }
+    }, [worksites]);
+
+    useEffect(() => {
+        if (!typesInitialized.current && resourceTypes.length > 0) {
              const preSelected = resourceTypes.filter(t => t.pd_sgla > 0).map(t => t.fu_sgla);
-             if (preSelected.length > 0) setSelectedTypeSglas(preSelected);
-             else setSelectedTypeSglas(resourceTypes.map(t => t.fu_sgla));
+             if (preSelected.length > 0) {
+                 // eslint-disable-next-line react-hooks/set-state-in-effect
+                 setSelectedTypeSglas(preSelected);
+             } else {
+                 // eslint-disable-next-line react-hooks/set-state-in-effect
+                 setSelectedTypeSglas(resourceTypes.map(t => t.fu_sgla));
+             }
+             
+             typesInitialized.current = true;
         }
     }, [resourceTypes]);
 
