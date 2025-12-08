@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { useProductionOrders, useProductionOrderDetail } from './useProductionOrders';
+import { useProductionOrders } from './useProductionOrders';
 import { useAllWorksites } from '../evaluations/useEvaluations';
-import { useProposals } from '../service-orders/useProposals'; // Reuse proposals hook
+import { useProposals } from '../service-orders/useProposals';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
+import { Button } from '../../components/ui/Button';
 import { format, subMonths } from 'date-fns';
 import { jsonDate } from '../../utils/formatters';
 import { ProductionOrder } from './types';
+import { ProductionOrderForm } from './ProductionOrderForm';
 
 export const ProductionOrderList: React.FC = () => {
     const [startDate, setStartDate] = useState<Date>(subMonths(new Date(), 1));
@@ -15,18 +17,20 @@ export const ProductionOrderList: React.FC = () => {
     const [selectedProposal, setSelectedProposal] = useState<string>('0');
     
     const { worksites } = useAllWorksites();
-    // Fetch proposals if worksite selected
     const { proposals } = useProposals(parseInt(selectedWorksite) || 0);
 
     const filters = useMemo(() => ({
         startDate,
         endDate,
         worksiteId: parseInt(selectedWorksite) || null,
-        orderId: parseInt(selectedProposal) || null // "Proposal" is Service Order here
+        orderId: parseInt(selectedProposal) || null
     }), [startDate, endDate, selectedWorksite, selectedProposal]);
 
     const { orders, isLoading } = useProductionOrders(filters);
+    
+    // Selection state
     const [selectedOrder, setSelectedOrder] = useState<ProductionOrder | null>(null);
+    const [isCreating, setIsCreating] = useState(false);
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (d: Date) => void) => {
         if (e.target.value) {
@@ -35,10 +39,35 @@ export const ProductionOrderList: React.FC = () => {
         }
     };
 
+    const handleCreateNew = () => {
+        if (selectedWorksite === '0') {
+            alert('Selecione uma obra para criar uma nova ordem.');
+            return;
+        }
+        setSelectedOrder(null);
+        setIsCreating(true);
+    };
+
+    const handleCloseForm = () => {
+        setSelectedOrder(null);
+        setIsCreating(false);
+    };
+
+    const getWorksiteName = () => {
+        const w = worksites.find(w => w.id_clie.toString() === selectedWorksite);
+        return w ? w.cl_fant : '';
+    };
+
     return (
         <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
             <div className="bg-white p-4 rounded-lg shadow">
-                <h1 className="text-xl font-bold text-slate-800 mb-4">Ordens de Serviço de Produção</h1>
+                <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-xl font-bold text-slate-800">Ordens de Serviço de Produção</h1>
+                    <Button onClick={handleCreateNew} disabled={selectedWorksite === '0'}>
+                        Nova Ordem
+                    </Button>
+                </div>
+                
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <Input
                         type="date"
@@ -62,6 +91,8 @@ export const ProductionOrderList: React.FC = () => {
                         onChange={(e) => {
                             setSelectedWorksite(e.target.value);
                             setSelectedProposal('0');
+                            setSelectedOrder(null);
+                            setIsCreating(false);
                         }}
                     />
                     <Select
@@ -93,7 +124,10 @@ export const ProductionOrderList: React.FC = () => {
                                 {orders.map((po) => (
                                     <li 
                                         key={po.po_nume} 
-                                        onClick={() => setSelectedOrder(po)}
+                                        onClick={() => {
+                                            setIsCreating(false);
+                                            setSelectedOrder(po);
+                                        }}
                                         className={`p-4 cursor-pointer hover:bg-blue-50 transition-colors ${selectedOrder?.po_nume === po.po_nume ? 'bg-blue-50' : ''}`}
                                     >
                                         <div className="flex justify-between items-start mb-1">
@@ -112,82 +146,29 @@ export const ProductionOrderList: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Details */}
-                <div className="lg:col-span-2 bg-white rounded-lg shadow overflow-hidden flex flex-col">
-                    {selectedOrder ? (
-                        <ProductionOrderDetails order={selectedOrder} />
+                {/* Edit Form */}
+                <div className="lg:col-span-2 flex flex-col min-h-0">
+                    {(selectedOrder || isCreating) ? (
+                        <ProductionOrderForm 
+                            key={selectedOrder?.po_nume || 'new'}
+                            order={selectedOrder}
+                            worksiteId={parseInt(selectedWorksite)}
+                            worksiteName={getWorksiteName()}
+                            onClose={handleCloseForm}
+                            onSaved={() => {
+                                // If creating, maybe select the new order? 
+                                // For now just refresh happens via react-query invalidate
+                                setIsCreating(false);
+                                setSelectedOrder(null); 
+                            }}
+                        />
                     ) : (
-                        <div className="flex-1 flex items-center justify-center text-slate-400">Selecione uma ordem de serviço.</div>
+                        <div className="bg-white rounded-lg shadow flex-1 flex items-center justify-center text-slate-400">
+                            Selecione uma ordem para editar ou crie uma nova.
+                        </div>
                     )}
                 </div>
             </div>
         </div>
     );
 };
-
-const ProductionOrderDetails: React.FC<{ order: ProductionOrder }> = ({ order }) => {
-    const { items, situations, isLoading } = useProductionOrderDetail(order.po_nume);
-
-    return (
-        <div className="flex flex-col h-full">
-            <div className="p-4 border-b border-slate-100 bg-slate-50">
-                <h2 className="font-bold text-lg text-slate-800 mb-2">{order.po_desc}</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                    <DetailItem label="Planejador" value={order.po_plan} />
-                    <DetailItem label="Solicitante" value={order.po_soli} />
-                    <DetailItem label="Necessidade" value={jsonDate(order.po_dtnc)} />
-                    <DetailItem label="Prev. Início" value={jsonDate(order.po_dtpi)} />
-                    <DetailItem label="Horas Disp." value={order.po_hrdi} />
-                    <DetailItem label="Situação" value={order.ps_situ} />
-                </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                {/* Items */}
-                <div>
-                    <h3 className="font-semibold text-slate-700 mb-2">Itens da OS</h3>
-                    {isLoading ? (
-                        <div className="text-slate-400 text-sm">Carregando itens...</div>
-                    ) : items.length === 0 ? (
-                        <div className="text-slate-400 text-sm">Nenhum item.</div>
-                    ) : (
-                        <ul className="space-y-2">
-                            {items.map((item) => (
-                                <li key={item.id_item} className="p-3 bg-slate-50 rounded border border-slate-100 text-sm">
-                                    <span className="font-bold mr-2">Item {item.id_item}:</span>
-                                    {item.pi_desc}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-
-                {/* Situations */}
-                <div>
-                    <h3 className="font-semibold text-slate-700 mb-2">Histórico de Situações</h3>
-                    {isLoading ? (
-                        <div className="text-slate-400 text-sm">Carregando histórico...</div>
-                    ) : situations.length === 0 ? (
-                        <div className="text-slate-400 text-sm">Nenhum histórico.</div>
-                    ) : (
-                        <ul className="space-y-2">
-                            {situations.map((sit, idx) => (
-                                <li key={idx} className="flex justify-between text-sm p-2 border-b border-slate-100 last:border-0">
-                                    <span>{sit.ps_situ}</span>
-                                    <span className="text-slate-500">{jsonDate(sit.ps_data)}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const DetailItem = ({ label, value }: { label: string, value: string | number }) => (
-    <div>
-        <span className="block text-xs text-slate-400">{label}</span>
-        <span className="font-medium text-slate-700">{value || '-'}</span>
-    </div>
-);

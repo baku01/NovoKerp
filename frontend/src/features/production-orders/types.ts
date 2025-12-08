@@ -14,10 +14,39 @@ export interface ProductionOrder {
     po_desc: string; // Description
 }
 
+export interface ProductionOrderInput {
+    id_clie: number;
+    os_nume: string;
+    po_desc: string;
+    po_plan: string;
+    po_soli: string;
+    po_dtnc: Date;
+    po_dtpi: Date;
+    po_hrdi: number;
+    ps_situ?: string;
+    pi_desc?: string; // Initial item description
+}
+
+export interface ProductionOrderUpdateInput {
+    po_nume: number;
+    po_desc: string;
+    po_plan: string;
+    po_soli: string;
+    po_dtnc: Date;
+    po_dtpi: Date;
+    po_hrdi: number;
+}
+
 export interface ProductionOrderItem {
     id_item: number;
     po_nume: number;
     pi_desc: string; // Description
+}
+
+export interface ProductionOrderItemInput {
+    po_nume: number;
+    pi_desc: string;
+    id_item?: number; // If updating? Legacy only has insert, delete? Legacy `insereItem` handles both insert (id=0) and maybe update? Legacy `insereItem` checks `lnIdItem` param.
 }
 
 export interface ProductionOrderFilter {

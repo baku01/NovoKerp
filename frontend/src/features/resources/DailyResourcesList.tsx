@@ -50,20 +50,33 @@ export const DailyResourcesList: React.FC = () => {
                 ) : (
                     <div className="space-y-2">
                         {resources.map((res) => {
-                            // Pending Logic Check
-                            // Legacy: if (ap_ords < 0 || ap_ords == 0 ...) color = green?
-                            // Legacy logic is complex coloring based on pending status.
-                            // I'll just display the raw data for now.
+                            // Legacy Logic Interpretation:
+                            // Green: Valid excuse/not expected (ap_ords == 0 && (to_con1 > 0 || to_cont == 0))
+                            // Red: Pending appointment (ap_ords > 0)
+                            // We don't have journey info here to check partial completion, so strict red if any pending.
                             
+                            let bgClass = 'bg-white';
+                            let borderClass = 'border-slate-200';
+                            
+                            if (res.ap_ords === 0) {
+                                if (res.to_con1 > 0 || res.to_cont === 0) {
+                                    bgClass = 'bg-green-50';
+                                    borderClass = 'border-green-200';
+                                }
+                            } else if (res.ap_ords > 0) {
+                                bgClass = 'bg-red-50';
+                                borderClass = 'border-red-200';
+                            }
+
                             return (
-                                <div key={`${res.id_matr}-${res.fu_empr}`} className="p-3 border border-slate-200 rounded hover:bg-slate-50 flex justify-between items-center">
+                                <div key={`${res.id_matr}-${res.fu_empr}`} className={`p-3 border rounded hover:opacity-90 flex justify-between items-center ${bgClass} ${borderClass}`}>
                                     <div>
                                         <div className="font-medium text-slate-800">{res.fu_nome}</div>
                                         <div className="text-xs text-slate-500">{res.fu_func} - {res.cb_tmdo}</div>
                                     </div>
                                     <div className="text-right text-xs">
                                         {res.fu_fcon && (
-                                            <div className="text-orange-600">
+                                            <div className="text-orange-600 font-semibold">
                                                 Exp: {jsonDate(res.fu_fcon)}
                                             </div>
                                         )}
