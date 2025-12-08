@@ -41,8 +41,29 @@ export const PurchasingList: React.FC = () => {
         });
     };
 
+    const handleSelectAll = () => {
+        if (checkedIds.size === orders.length) {
+            setCheckedIds(new Set());
+        } else {
+            setCheckedIds(new Set(orders.map(o => o.id_pcom)));
+        }
+    };
+
     const handleApprove = async () => {
         if (checkedIds.size === 0) return;
+
+        // Validation: Check Approval Limits (Alçada)
+        const selectedOrders = orders.filter(o => checkedIds.has(o.id_pcom));
+        const invalidOrders = selectedOrders.filter(o => 
+            o.pc_tota < o.us_fxde || o.pc_tota > o.us_fxat
+        );
+
+        if (invalidOrders.length > 0) {
+            const names = invalidOrders.map(o => o.pc_nume).join(', ');
+            alert(`As seguintes ordens não podem ser aprovadas por motivo de alçada (valor fora do limite): ${names}`);
+            return;
+        }
+
         if (confirm(`Aprovar ${checkedIds.size} pedidos?`)) {
             await approve(Array.from(checkedIds));
             setCheckedIds(new Set());
@@ -69,14 +90,14 @@ export const PurchasingList: React.FC = () => {
                             disabled={isApproving || checkedIds.size === 0}
                             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
                         >
-                            Aprovar
+                            {isApproving ? 'Aprovando...' : 'Aprovar'}
                         </button>
                         <button 
                             onClick={handleDisapprove}
                             disabled={isDisapproving || checkedIds.size === 0}
                             className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:bg-slate-300 disabled:cursor-not-allowed"
                         >
-                            Desaprovar
+                            {isDisapproving ? 'Desaprovando...' : 'Desaprovar'}
                         </button>
                     </div>
                 </div>
@@ -96,10 +117,23 @@ export const PurchasingList: React.FC = () => {
             {/* List */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-0 flex-1">
                 <div className="lg:col-span-1 bg-white rounded-lg shadow overflow-hidden flex flex-col">
-                    <div className="p-4 border-b border-slate-100 font-semibold text-slate-700">Pedidos</div>
+                    <div className="p-4 border-b border-slate-100 font-semibold text-slate-700 flex justify-between items-center">
+                        <span>Pedidos</span>
+                        <div className="flex items-center gap-2">
+                            <input 
+                                type="checkbox" 
+                                checked={orders.length > 0 && checkedIds.size === orders.length}
+                                onChange={handleSelectAll}
+                                disabled={orders.length === 0}
+                            />
+                            <span className="text-xs text-slate-500">Todos</span>
+                        </div>
+                    </div>
                     <div className="overflow-y-auto flex-1">
                         {isLoading ? (
                             <div className="p-4 text-center text-slate-400">Carregando...</div>
+                        ) : orders.length === 0 ? (
+                            <div className="p-4 text-center text-slate-400">Nenhum pedido encontrado.</div>
                         ) : (
                             <ul className="divide-y divide-slate-100">
                                 {orders.map(order => (
