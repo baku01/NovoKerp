@@ -15,7 +15,7 @@ export interface StockMovementItem {
     // Movement Info
     mv_qtde: number; // The quantity being moved
     mv_pcus: number; // Cost of movement
-    mv_motv: string; // Reason/Observation for item
+    mv_motv?: string; // Reason/Observation for item
 }
 
 export interface StockMovementHeader {
