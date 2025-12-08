@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDashboardData } from './useDashboardData';
 import { Input } from '../../components/ui/Input';
+import { Select } from '../../components/ui/Select';
+import { CircularGauge } from '../../components/ui/CircularGauge'; // Assuming this exists
 import { brDecimal, jsonDate } from '../../utils/formatters';
+import { format } from 'date-fns';
 
 export const CompanyTable: React.FC = () => {
     const navigate = useNavigate();
     const [date, setDate] = useState<Date>(new Date());
-    const { obras, isLoading } = useDashboardData(date);
+    const [hoursType, setHoursType] = useState<'oc_qthr' | 'os_phcn'>('oc_qthr'); // 'oc_qthr' for Orçadas, 'os_phcn' for Planejadas
+    
+    const { obras, isLoading, aggregatedData } = useDashboardData(date);
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.value) {
@@ -16,18 +21,89 @@ export const CompanyTable: React.FC = () => {
         }
     };
 
+    const totalHoursBase = useMemo(() => {
+        return hoursType === 'oc_qthr' ? aggregatedData.totalHorasOrcadas : aggregatedData.totalHorasPlanejadas;
+    }, [hoursType, aggregatedData]);
+
+    const getGaugeColor = (percentage: number): 'green' | 'yellow' | 'orange' | 'red' => {
+        if (percentage <= 70) return 'green';
+        if (percentage <= 90) return 'yellow';
+        if (percentage <= 100) return 'orange';
+        return 'red';
+    };
+
+
     return (
         <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
-            <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
-                <h1 className="text-xl font-bold text-slate-800">Tabela de Obras</h1>
-                <Input
-                    type="date"
-                    value={date.toISOString().split('T')[0]}
-                    onChange={handleDateChange}
-                    className="max-w-xs"
-                />
+            {/* Header & Controls */}
+            <div className="bg-white p-4 rounded-lg shadow">
+                <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-xl font-bold text-slate-800">Tabela de Obras</h1>
+                    <Input
+                        type="date"
+                        value={format(date, 'yyyy-MM-dd')}
+                        onChange={handleDateChange}
+                        className="max-w-xs"
+                    />
+                </div>
+                <div className="flex justify-between items-center">
+                    <Select
+                        label="Base Horas"
+                        options={[
+                            { value: 'oc_qthr', label: 'Horas Orçadas' },
+                            { value: 'os_phcn', label: 'Horas Planejadas' },
+                        ]}
+                        value={hoursType}
+                        onChange={(e) => setHoursType(e.target.value as any)}
+                        className="max-w-xs"
+                    />
+                </div>
             </div>
 
+            {/* Aggregated Totals & Gauges */}
+            <div className="bg-white p-4 rounded-lg shadow grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col items-center justify-center space-y-2">
+                    <CircularGauge
+                        value={aggregatedData.percHorasTotaisConsumidas / 100}
+                        label="Horas Consumidas"
+                        color={getGaugeColor(aggregatedData.percHorasTotaisConsumidas)}
+                        size={120}
+                    />
+                    <CircularGauge
+                        value={aggregatedData.percHorasTrabalhadas / 100}
+                        label="Horas Trabalhadas"
+                        color={getGaugeColor(aggregatedData.percHorasTrabalhadas)}
+                        size={80}
+                    />
+                </div>
+
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <div className="col-span-2">
+                        <h2 className="font-semibold text-slate-700 mb-2">Totais Consolidados</h2>
+                    </div>
+                    
+                    <div className="text-slate-600">Total Horas Base ({hoursType === 'oc_qthr' ? 'Orçadas' : 'Planejadas'}):</div>
+                    <div className="text-right font-medium">{totalHoursBase}</div>
+
+                    <div className="text-slate-600">Apt. Divergentes:</div>
+                    <div className="text-right font-medium text-red-600">{aggregatedData.totalAptDivergentes}</div>
+
+                    <div className="text-slate-600">Apt. Pendentes:</div>
+                    <div className="text-right font-medium text-yellow-600">{aggregatedData.totalAptPendentes} / {aggregatedData.totalAptTotal}</div>
+                    
+                    <div className="text-slate-600">RDO Pendente:</div>
+                    <div className="text-right font-medium">{aggregatedData.totalRdoPendente} / {aggregatedData.totalRdoTotal}</div>
+
+                    <div className="text-slate-600">Modificações:</div>
+                    <div className="text-right font-medium">{aggregatedData.totalModificacoes}</div>
+
+                    <div className="text-slate-600">Mod. Atualização:</div>
+                    <div className="text-right font-medium">{aggregatedData.totalModAtualizacao}</div>
+                </div>
+            </div>
+
+
+            {/* Worksites Table */}
             <div className="bg-white p-4 rounded-lg shadow overflow-x-auto">
                 {isLoading ? (
                     <div className="text-center py-8 text-slate-500">Carregando...</div>

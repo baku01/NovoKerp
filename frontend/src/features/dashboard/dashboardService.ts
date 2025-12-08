@@ -20,9 +20,9 @@ export interface DashboardObra {
     qt_moda: number; // quantidade modificações atualização
     ap_data: string; // última data apontamento
     oc_qthr: number; // horas orçadas
-    os_phcn: number; // horas planejadas
-    re_hrap: number; // horas realizadas
-    re_htap: number; // horas trabalhadas
+    os_phcn: number; // horas planejadas (orçadas p/ planejamento)
+    re_hrap: number; // horas realizadas (recursos apontados)
+    re_htap: number; // horas trabalhadas (recursos apontados)
 }
 
 export interface ApontamentoDivergente {
@@ -34,6 +34,11 @@ export interface ApontamentoPendente {
     id_cadt: number;
     qt_pndt: number;
     qt_tota: number;
+}
+
+export interface HourPremium {
+    id_clie: number;
+    ah_hora: number; // Hours in decimal format (e.g., 8.5 for 8h30m)
 }
 
 /**
@@ -91,4 +96,19 @@ export async function fetchApontamentosPendentes(
         'pesquisaDashboardApontamentosPendentes',
         params
     );
+}
+
+/**
+ * Fetch hour premium data
+ */
+export async function fetchHorasPremio(
+    empresa: string,
+    data: string
+): Promise<HourPremium[]> {
+    const params = [
+        createParam('lcIdEmpr', 'VarChar', empresa),
+        createParam('lnIdClie', 'Int', null), // Null for all clients
+        createParam('ldAhData', 'SmallDatetime', data),
+    ];
+    return callProcedure<HourPremium>('pesquisaHorasPremio', params);
 }
