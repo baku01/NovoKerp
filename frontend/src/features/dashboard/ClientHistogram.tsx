@@ -7,7 +7,13 @@ import { ResponsiveContainer, Treemap, Tooltip } from 'recharts';
 
 // Custom Content for Treemap Node
 const CustomizedContent = (props: any) => {
-    const { depth, x, y, width, height, name, value } = props;
+    const { depth, x, y, width, height, name, item, onEditName } = props;
+
+    // Legacy: id_novo > 0 -> white text
+    const textColor = item?.id_novo && item.id_novo > 0 ? 'text-white' : 'text-slate-100';
+    
+    // Legacy font size logic (approximate)
+    const fontSize = Math.min(width / 5, height / 5, 16);
 
     return (
         <g>
@@ -26,12 +32,24 @@ const CustomizedContent = (props: any) => {
             {depth === 1 ? (
                 <foreignObject x={x} y={y} width={width} height={height}>
                     <div 
-                        className="w-full h-full flex flex-col items-center justify-center p-1 text-center overflow-hidden text-white cursor-pointer hover:bg-white/10 transition-colors"
-                        style={{ fontSize: Math.min(width / 5, height / 5, 16) }}
+                        className={`w-full h-full flex flex-col items-center justify-center p-1 text-center overflow-hidden cursor-pointer hover:bg-white/10 transition-colors group relative ${textColor}`}
+                        style={{ fontSize }}
                         title={name}
                     >
                         <span className="font-bold leading-tight">{name}</span>
-                        <span className="text-xs mt-1 opacity-80">{value}</span>
+                        <span className="text-xs mt-1 opacity-80">{item.totalReal}</span>
+                        
+                        {/* Edit Name Action (Visible on Hover) */}
+                        <button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEditName(item);
+                            }}
+                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 bg-black/20 hover:bg-black/40 rounded p-1 transition-opacity text-white"
+                            title="Renomear Obra"
+                        >
+                            ✎
+                        </button>
                     </div>
                 </foreignObject>
             ) : null}
@@ -43,8 +61,8 @@ const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
-            <div className="bg-white p-3 border border-slate-200 rounded shadow-lg text-sm z-50">
-                <p className="font-bold text-slate-800 mb-2">{data.name}</p>
+            <div className="bg-white p-3 border border-slate-200 rounded shadow-lg text-sm z-50 text-slate-800">
+                <p className="font-bold mb-2 border-b pb-1">{data.name}</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                     <span className="text-slate-500">Planejado (MO/EQ):</span>
                     <span className="font-medium text-right">{data.pl_func} / {data.pl_eqto}</span>
@@ -70,7 +88,7 @@ export const ClientHistogram: React.FC = () => {
     const [maxSize, setMaxSize] = useState<string>('');
     const [showConfig, setShowConfig] = useState(false);
 
-    const { resources, isLoading, updateConfig } = useHistogram(date);
+    const { resources, isLoading, updateConfig, updateName } = useHistogram(date);
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.value) {
@@ -90,31 +108,18 @@ export const ClientHistogram: React.FC = () => {
         }
     };
 
+    const handleEditName = async (item: any) => {
+        const newName = prompt("Nome da obra no histograma:", item.cl_hgnm || item.cl_fant);
+        if (newName !== null && newName.trim() !== "") {
+            await updateName({ 
+                idClie: item.id_clie, 
+                name: newName.toUpperCase() 
+            });
+        }
+    };
+
     const handleNodeClick = (node: any) => {
         if (node && node.id_cadt) {
-            // Legacy: Sets sessionStorage "soCdClie" -> { id_cadt: 0, ls_cadt: [id], ls_fant: [name] }
-            // EmployeeList uses "idCadt" filter.
-            // Navigate to EmployeeList with filters
-            // Note: EmployeeList expects query params or state? 
-            // Currently EmployeeList implementation reads from `useEmployeesData` which reads from component state.
-            // We should update `EmployeeList.tsx` to read initial state from URL search params for deep linking.
-            // For now, let's pass state via navigation if feasible, or just assume the user will select filter.
-            // Ideally: `/funcionarios?idCadt=123`
-            // I'll stick to simple navigation for now, user selects. 
-            // Wait, `EmployeeList.tsx` doesn't read URL params yet. 
-            // I'll implement it later or just navigate to `funcionarios` and let user filter.
-            // Better: Navigate to `/funcionarios` and pass state in location?
-            // Or just basic navigation for now.
-            
-            // Actually, `EmployeeList` logic:
-            // `const [selectedObra, setSelectedObra] = useState<string>('0/0');`
-            // We can pass `state: { selectedObra: 'idClie/idCadt' }` to location?
-            // Need to update `EmployeeList` to read location state.
-            // I'll assume basic nav first.
-            
-            // The legacy logic used sessionStorage to pass specific list.
-            // Let's just console log for now and navigate.
-            
             navigate('/funcionarios', { 
                 state: { 
                     preselectObra: `${node.id_clie}/${node.id_cadt}` 
@@ -123,37 +128,32 @@ export const ClientHistogram: React.FC = () => {
         }
     };
 
-    // Data Transformation for Recharts Treemap
-    // Needs `name`, `size` (value), `children`?
     const treeData = useMemo(() => {
         if (!resources.length) return [];
 
         const children = resources.map(r => {
             const totalReal = r.qt_func + r.qt_eqto;
             
-            // Calculate Size (Legacy Logic: Config Min/Max + Actual Size)
-            // Legacy: 
-            // lnHtSize = totalReal
-            // if size < min -> min
-            // if size > max -> max
-            // Actually for visualization, using real count is usually better.
-            // But if we want to mimic legacy layout stability, we use clamped size.
-            // Let's just use `totalReal` as `value` for Treemap area.
+            // Legacy Size Calculation (Clamping)
+            let displaySize = totalReal;
+            if (r.ht_tmin && displaySize < r.ht_tmin) displaySize = r.ht_tmin;
+            if (r.ht_tmax && displaySize > r.ht_tmax) displaySize = r.ht_tmax;
             
             return {
                 ...r,
                 name: r.cl_hgnm || r.cl_fant,
-                size: totalReal, // Recharts uses this if dataKey='size'
-                value: totalReal, // Or this
-                // Pass extra data for tooltip
+                size: displaySize, // Used for visual sizing
+                totalReal: totalReal, // Actual value for display text
+                // Pass extra data
                 pl_func: r.pl_func,
                 pl_eqto: r.pl_eqto,
                 qt_func: r.qt_func,
                 qt_eqto: r.qt_eqto,
                 rp_func: r.rp_func,
-                rp_eqto: r.rp_eqto
+                rp_eqto: r.rp_eqto,
+                id_novo: r.id_novo
             };
-        }).filter(r => r.value > 0); // Only show items with resources
+        }).filter(r => (r.qt_func + r.qt_eqto + r.pl_func + r.pl_eqto) > 0); // Legacy filter: show if any activity
 
         return children;
     }, [resources]);
@@ -219,7 +219,7 @@ export const ClientHistogram: React.FC = () => {
                                 aspectRatio={4 / 3}
                                 stroke="#fff"
                                 fill="#8884d8"
-                                content={<CustomizedContent />}
+                                content={<CustomizedContent onEditName={handleEditName} />}
                                 onClick={handleNodeClick}
                             >
                                 <Tooltip content={<CustomTooltip />} />

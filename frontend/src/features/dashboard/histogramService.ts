@@ -2,6 +2,7 @@ import { callProcedure, createParam } from '../../api/procedures';
 
 export interface HistogramResource {
     id_cadt: number;
+    id_clie: number; // Add this
     cl_fant: string;
     cl_hgnm: string; // Histogram Name (Custom)
     pd_cadt: number;

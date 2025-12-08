@@ -40,7 +40,7 @@ export function useHistogram(date: Date) {
         resources: query.data || [],
         isLoading: query.isLoading,
         updateConfig: configMutation.mutateAsync,
-        renameClient: renameMutation.mutateAsync,
+        updateName: renameMutation.mutateAsync,
         isUpdating: configMutation.isPending || renameMutation.isPending
     };
 }
