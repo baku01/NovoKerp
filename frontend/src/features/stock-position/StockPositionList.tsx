@@ -33,7 +33,8 @@ export const StockPositionList: React.FC = () => {
         endDate,
         worksiteId: realWorksiteId,
         serviceOrderId: parseInt(selectedOrder) || null,
-        employeeId: parseInt(selectedEmployee.split('/')[1]) || null // Employee val usually id_empr/id_matr
+        employeeId: parseInt(selectedEmployee.split('/')[1]) || null, // Employee val usually id_empr/id_matr
+        employeeCompany: selectedEmployee.split('/')[0] === '0' ? null : selectedEmployee.split('/')[0]
     }), [type, date, startDate, endDate, realWorksiteId, selectedOrder, selectedEmployee]);
 
     // Data Hooks

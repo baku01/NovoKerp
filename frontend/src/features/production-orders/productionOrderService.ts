@@ -40,14 +40,11 @@ export async function fetchProductionOrderSituations(
 }
 
 export async function fetchProductionOrderProjects(
-    // poNum: number
+    poNum: number
 ): Promise<ProductionOrderProject[]> {
-    // Legacy uses `pesquisaDocumentos` (servlet/endpoint?), not a procedure via `chamadaProcedure`.
-    // "pesquisaDocumentos?lcPtDocu=OrdensServicoProducao/..."
-    // I'll assume I can fetch this or mock it if it's a file listing.
-    // For now, let's define the interface but the implementation depends on the backend route `pesquisaDocumentos`.
-    // It's likely a GET request.
-    
-    // TODO: Implement `apiClient.get('pesquisaDocumentos', ...)`
-    return []; // Placeholder
+    const params = [
+        createParam('lcPtDocs', 'VarChar', `OrdensServicoProducao/${poNum}`),
+        createParam('lnExFile', 'Int', 1) // Assuming we want files? Legacy used "pesquisaDocumentos" which returns files and folders usually. PcprOsItem.js logic implies files.
+    ];
+    return callProcedure<ProductionOrderProject>('pesquisaDocumentos', params);
 }

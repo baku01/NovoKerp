@@ -25,6 +25,7 @@ export interface StockPositionFilters {
     endDate?: Date | null; // For Consumption
     worksiteId: number;
     employeeId?: number | null;
+    employeeCompany?: string | null;
     serviceOrderId?: number | null;
 }
 

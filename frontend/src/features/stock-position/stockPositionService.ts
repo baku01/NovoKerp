@@ -29,7 +29,7 @@ export async function fetchStockPosition(
         // Actually, `pesquisaConsumoEstoque` takes `lcFuEmpr`.
         // We should probably include it in filters or derive it.
         // Let's assume passed filters might have it.
-        params.push(createParam('lcFuEmpr', 'VarChar', null)); // TODO: Fix this if needed
+        params.push(createParam('lcFuEmpr', 'VarChar', filters.employeeCompany || null));
         params.push(createParam('lnIdMatr', 'Int', filters.employeeId || 0));
     } else {
         params.push(createParam('ldMvData', 'SmallDatetime', filters.date ? format(filters.date, 'yyyy-MM-dd') : null));
