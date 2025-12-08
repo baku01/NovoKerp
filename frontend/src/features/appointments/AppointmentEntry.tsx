@@ -112,7 +112,7 @@ export const AppointmentEntry: React.FC = () => {
 
             // Handle Photos
             if (result && result.length > 0 && photos.length > 0) {
-                const apntId = result[0].id_apnt; // Assuming procedure returns ID
+                const apntId = (result[0] as any).id_apnt; // Assuming procedure returns ID
                 if (apntId) {
                     for (const photo of photos) {
                         const reader = new FileReader();

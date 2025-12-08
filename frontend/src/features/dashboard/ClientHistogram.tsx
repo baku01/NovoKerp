@@ -24,7 +24,8 @@ interface CustomizedContentProps {
 }
 
 // Custom Content for Treemap Node
-const CustomizedContent = (props: unknown) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CustomizedContent: React.FC<any> = (props) => {
     const { depth, x, y, width, height, name, item, onEditName } = props as CustomizedContentProps;
 
     // Legacy: id_novo > 0 -> white text
@@ -141,11 +142,13 @@ export const ClientHistogram: React.FC = () => {
         }
     };
 
-    const handleNodeClick = (node: HistogramResource) => {
-        if (node && node.id_cadt) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleNodeClick = (node: any) => {
+        const item = node as HistogramResource;
+        if (item && item.id_cadt) {
             navigate('/funcionarios', { 
                 state: { 
-                    preselectObra: `${node.id_clie}/${node.id_cadt}` 
+                    preselectObra: `${item.id_clie}/${item.id_cadt}` 
                 } 
             });
         }

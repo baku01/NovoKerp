@@ -9,14 +9,8 @@ import { StockMovementHeader, StockMovementItem } from './types';
 import { brDecimal, brMoney } from '../../utils/formatters';
 import { StockPhotoCapture } from './StockPhotoCapture'; // Import StockPhotoCapture
 import { uploadStockMovementPhoto } from './stockMovementService'; // Import uploadStockMovementPhoto
-import { useUserStore } from '../../stores/useUserStore'; // Import useUserStore
 
 export const StockMovementForm: React.FC = () => {
-    // User Store for company ID and user ID
-    const { user } = useUserStore();
-    const empresa = user?.id_empr || '';
-    const userId = user?.id_user || '';
-
     // Header State
     const [type, setType] = useState<'E' | 'S'>('S'); // Default Exit
     const [date, setDate] = useState<Date>(new Date());
@@ -140,7 +134,7 @@ export const StockMovementForm: React.FC = () => {
                     }
                 }
         try {
-            await saveMovement(userId, empresa, { // Pass userId and empresa here
+            await saveMovement({ // Pass only payload here
                 ...header,
                 mv_lati: lat,
                 mv_long: long,
