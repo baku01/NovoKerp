@@ -14,6 +14,21 @@ export interface AppointmentActivity {
     at_deno: string; // Description
     at_tipo: string; // 'A' (Activity) or 'T' (Task/Exclusion?)
     id_excl?: number;
+    ta_codi?: string; // Task Code
+    ap_dres?: number; // Days remaining (from previous appointment?)
+    at_dres?: number; // Default days remaining
+}
+
+export interface AppointmentComment {
+    cm_desc: string;
+    // Add other fields if legacy `consultaComentario` returns more
+}
+
+export interface TaskUpdateInput {
+    id_ords: number;
+    id_excl: number;
+    id_ativ: number;
+    ap_dres: number;
 }
 
 export interface AppointmentStatusOption {

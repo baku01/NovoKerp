@@ -6,8 +6,11 @@ import {
     Justification, 
     Responsibility, 
     AppointmentPayload,
-    EmailConfig
+    EmailConfig,
+    TaskUpdateInput,
+    AppointmentComment
 } from './types';
+import { format } from 'date-fns';
 
 export async function fetchResources(
     empresa: string,
@@ -32,6 +35,54 @@ export async function fetchActivities(
         createParam('lnIdOrds', 'Int', idOrds),
     ];
     return callProcedure<AppointmentActivity>('pesquisaAtividades', params);
+}
+
+export async function updateTaskDays(
+    empresa: string,
+    input: TaskUpdateInput
+): Promise<AppointmentActivity[]> {
+    const params = [
+        createParam('lcIdEmpr', 'VarChar', empresa),
+        createParam('lnIdOrds', 'Int', input.id_ords),
+        createParam('lnIdExcl', 'Int', input.id_excl),
+        createParam('lnIdAtiv', 'Int', input.id_ativ),
+        createParam('lnApDres', 'Decimal', input.ap_dres)
+    ];
+    return callProcedure<AppointmentActivity>('atualizaDiasRestantes', params);
+}
+
+export async function fetchComment(
+    empresa: string,
+    idClie: number,
+    idOrds: number,
+    date: Date
+): Promise<AppointmentComment[]> {
+    const params = [
+        createParam('lcIdEmpr', 'VarChar', empresa),
+        createParam('lnIdClie', 'Int', idClie),
+        createParam('lnIdOrds', 'Int', idOrds),
+        createParam('ldCmData', 'SmallDatetime', format(date, 'yyyy-MM-dd'))
+    ];
+    return callProcedure<AppointmentComment>('consultaComentario', params);
+}
+
+export async function insertComment(
+    userId: string,
+    empresa: string,
+    idClie: number,
+    idOrds: number,
+    date: Date,
+    comment: string
+): Promise<void> {
+    const params = [
+        createParam('lcIdUser', 'VarChar', userId),
+        createParam('lcIdEmpr', 'VarChar', empresa),
+        createParam('lnIdClie', 'Int', idClie),
+        createParam('lnIdOrds', 'Int', idOrds),
+        createParam('ldCmData', 'SmallDatetime', format(date, 'yyyy-MM-dd')),
+        createParam('lcCmDesc', 'VarChar', comment)
+    ];
+    await callProcedure('insereComentario', params);
 }
 
 export async function fetchStatusOptions(empresa: string): Promise<AppointmentStatusOption[]> {
@@ -81,6 +132,20 @@ export async function saveAppointment(
         createParam('lcIdEqto', 'VarChar', payload.ids_eqto),
     ];
     return callProcedure('insereApontamento', params);
+}
+
+export async function uploadAppointmentPhoto(
+    appointmentId: number,
+    file: string // base64
+): Promise<void> {
+    // Legacy: `insereFoto` POST with JSON body
+    // lcBsFoto, lcWkPath, lcWkFoto (generated random name)
+    const randomName = Math.random().toString(36).substring(7) + ".png";
+    await apiClient.post('insereFoto', {
+        lcBsFoto: file,
+        lcWkPath: `apontamentos/${appointmentId}/`,
+        lcWkFoto: randomName
+    });
 }
 
 export async function sendEmail(

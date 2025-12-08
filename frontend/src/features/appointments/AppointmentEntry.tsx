@@ -1,10 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAppointmentEntry } from './useAppointmentEntry';
+import { ActivitySelector } from './ActivitySelector';
+import { AppointmentComments } from './AppointmentComments';
+import { uploadAppointmentPhoto, sendEmail } from './appointmentService';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { format } from 'date-fns';
-import { AppointmentResource } from './types';
+import { AppointmentResource, AppointmentActivity } from './types';
+import { jsonDate } from '../../utils/formatters';
 
 export const AppointmentEntry: React.FC = () => {
     const navigate = useNavigate();
@@ -24,11 +28,12 @@ export const AppointmentEntry: React.FC = () => {
         ent2: '13:00',
         sai2: '17:00'
     });
-    const [activityId, setActivityId] = useState<string>('');
+    const [selectedActivity, setSelectedActivity] = useState<AppointmentActivity | null>(null);
     const [activityDesc, setActivityDesc] = useState('');
     const [justificationId, setJustificationId] = useState<string>('');
     const [responsibilityId, setResponsibilityId] = useState<string>('');
     const [observation, setObservation] = useState('');
+    const [photos, setPhotos] = useState<File[]>([]);
 
     const { 
         resources, 
@@ -54,6 +59,12 @@ export const AppointmentEntry: React.FC = () => {
         });
     };
 
+    const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setPhotos(prev => [...prev, ...Array.from(e.target.files || [])]);
+        }
+    };
+
     const handleSave = async () => {
         if (selectedResources.length === 0) {
             alert('Selecione ao menos um recurso.');
@@ -64,29 +75,23 @@ export const AppointmentEntry: React.FC = () => {
             return;
         }
 
-        // Separate Employees and Equipment
         const employees = selectedResources.filter(r => r.cb_tmdo !== 'EQP');
         const equipments = selectedResources.filter(r => r.cb_tmdo === 'EQP');
 
-        const idsMatr = employees.map(e => `${e.id_matr}${e.fu_empr}`).join(', '); // Legacy format: "123EMPR, 456EMPR"
-        // Wait, legacy `lcIdMatr += gmSmRcsoCOA[i].id_matr.toString() + gmSmRcsoCOA[i].fu_empr...`
-        // Yes, concatenated ID + Company.
-        
+        const idsMatr = employees.map(e => `${e.id_matr}${e.fu_empr}`).join(', '); 
         const idsEqto = equipments.map(e => e.id_matr.toString()).join(', ');
 
-        // Hours to Decimal
         const toDecimal = (time: string) => {
             if (!time) return 0;
             const [h, m] = time.split(':').map(Number);
-            return parseFloat(`${h}.${m}`); // Legacy "Clock Decimal"
+            return parseFloat(`${h}.${m}`); 
         };
 
         try {
-            await saveAppointment({
+            const result = await saveAppointment({
                 ids_matr: idsMatr,
                 ids_eqto: idsEqto,
-                // Legacy uses `sltStrcCOA` (Status Resource) vs `sltSircCOA` (Situation).
-                id_strc: 1, // Assuming Active by default
+                id_strc: 1, 
                 id_sirc: parseInt(statusId),
                 
                 ap_hent: toDecimal(hours.ent1),
@@ -94,20 +99,67 @@ export const AppointmentEntry: React.FC = () => {
                 ap_htin: toDecimal(hours.ent2),
                 ap_hter: toDecimal(hours.sai2),
                 
-                id_ativ: parseInt(activityId) || 0,
+                id_ativ: selectedActivity && selectedActivity.at_tipo === 'A' ? selectedActivity.id_ativ : 0,
+                id_excl: selectedActivity && selectedActivity.at_tipo === 'T' ? selectedActivity.id_excl : 0,
                 ap_datv: activityDesc,
                 
                 id_just: parseInt(justificationId) || 0,
                 id_rpju: parseInt(responsibilityId) || 0,
                 ap_obju: observation,
                 
-                ap_feri: 0 // Checkbox for holiday? I'll skip for MVP or add later.
+                ap_feri: 0 
             });
+
+            // Handle Photos
+            if (result && result.length > 0 && photos.length > 0) {
+                const apntId = result[0].id_apnt; // Assuming procedure returns ID
+                if (apntId) {
+                    for (const photo of photos) {
+                        const reader = new FileReader();
+                        await new Promise<void>((resolve) => {
+                            reader.onload = async () => {
+                                const base64 = (reader.result as string); // Full Data URL
+                                await uploadAppointmentPhoto(apntId, base64);
+                                resolve();
+                            };
+                            reader.readAsDataURL(photo);
+                        });
+                    }
+                }
+            }
+
+            // Handle Emails (Legacy Logic Translation)
+            // Logic from ComlOsApnt.js: check status/responsibility and send email
+            const srId = parseInt(statusId);
+            const respId = parseInt(responsibilityId);
+            
+            // Example triggers (simplified from legacy):
+            // 16 = Falta Justificada (requires email)
+            // 2 = Afastado/Atestado (requires email)
+            // Responsibilities 1 or 2 (requires email)
+            
+            const needsEmail = srId === 16 || srId === 2 || respId === 1 || respId === 2;
+
+            if (needsEmail && result && result.length > 0) {
+                // Construct email body - simple version for now
+                const subject = `Apontamento de ${srId === 16 ? 'Falta Justificada' : 'Ocorrência'} - ${clientName}`;
+                const body = `
+                    <h3>${subject}</h3>
+                    <p>Data: ${jsonDate(format(date, 'yyyy-MM-dd'))}</p>
+                    <p>Obra: ${clientName}</p>
+                    <p>Recursos: ${selectedResources.map(r => r.fu_nome).join(', ')}</p>
+                    <p>Observação: ${observation}</p>
+                `;
+                
+                await sendEmail({ to: "planejamento.sede@gruporeall.com.br", subject, body });
+            }
             
             alert('Apontamento salvo!');
-            setSelectedResources([]); // Clear selection
+            setSelectedResources([]);
+            setPhotos([]);
             navigate(-1);
         } catch (e) {
+            console.error(e);
             alert('Erro ao salvar apontamento.');
         }
     };
@@ -123,41 +175,45 @@ export const AppointmentEntry: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Resource Selection */}
-                <div className="bg-white p-4 rounded-lg shadow lg:col-span-1 flex flex-col max-h-[600px]">
-                    <h2 className="font-semibold text-slate-700 mb-2">Recursos Disponíveis</h2>
-                    <Input 
-                        type="date" 
-                        value={format(date, 'yyyy-MM-dd')} 
-                        onChange={(e) => e.target.value && setDate(new Date(e.target.value))}
-                        className="mb-4"
-                    />
-                    <div className="flex-1 overflow-y-auto space-y-2 border border-slate-100 rounded p-2">
-                        {resources.map(res => (
-                            <div 
-                                key={`${res.id_matr}-${res.fu_empr}`}
-                                onClick={() => handleToggleResource(res)}
-                                className={`
-                                    p-2 rounded border cursor-pointer flex justify-between items-center
-                                    ${selectedResources.includes(res) 
-                                        ? 'bg-blue-50 border-blue-500' 
-                                        : 'hover:bg-slate-50 border-slate-200'}
-                                `}
-                            >
-                                <div>
-                                    <div className="font-medium text-sm">{res.fu_nome}</div>
-                                    <div className="text-xs text-slate-500">{res.fu_func}</div>
+                {/* Left Col: Resources & Comments */}
+                <div className="lg:col-span-1 space-y-4">
+                    <div className="bg-white p-4 rounded-lg shadow flex flex-col max-h-[500px]">
+                        <h2 className="font-semibold text-slate-700 mb-2">Recursos Disponíveis</h2>
+                        <Input 
+                            type="date" 
+                            value={format(date, 'yyyy-MM-dd')} 
+                            onChange={(e) => e.target.value && setDate(new Date(e.target.value))}
+                            className="mb-4"
+                        />
+                        <div className="flex-1 overflow-y-auto space-y-2 border border-slate-100 rounded p-2">
+                            {resources.map(res => (
+                                <div 
+                                    key={`${res.id_matr}-${res.fu_empr}`}
+                                    onClick={() => handleToggleResource(res)}
+                                    className={`
+                                        p-2 rounded border cursor-pointer flex justify-between items-center
+                                        ${selectedResources.find(r => r.id_matr === res.id_matr && r.fu_empr === res.fu_empr) 
+                                            ? 'bg-blue-50 border-blue-500' 
+                                            : 'hover:bg-slate-50 border-slate-200'}
+                                    `}
+                                >
+                                    <div>
+                                        <div className="font-medium text-sm">{res.fu_nome}</div>
+                                        <div className="text-xs text-slate-500">{res.fu_func}</div>
+                                    </div>
+                                    {selectedResources.find(r => r.id_matr === res.id_matr && r.fu_empr === res.fu_empr) && <span className="text-blue-600">✓</span>}
                                 </div>
-                                {selectedResources.includes(res) && <span className="text-blue-600">✓</span>}
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                        <div className="mt-2 text-right text-sm text-slate-500">
+                            {selectedResources.length} selecionados
+                        </div>
                     </div>
-                    <div className="mt-2 text-right text-sm text-slate-500">
-                        {selectedResources.length} selecionados
-                    </div>
+
+                    <AppointmentComments idClie={idClie} idOrds={idOrds} date={date} />
                 </div>
 
-                {/* Form */}
+                {/* Right Col: Form */}
                 <div className="bg-white p-4 rounded-lg shadow lg:col-span-2 space-y-4">
                     <h2 className="font-semibold text-slate-700">Dados do Apontamento</h2>
                     
@@ -178,15 +234,18 @@ export const AppointmentEntry: React.FC = () => {
                                 <Input label="Saída 2" type="time" value={hours.sai2} onChange={e => setHours({...hours, sai2: e.target.value})} />
                             </div>
 
-                            <Select
-                                label="Atividade"
-                                options={[{ value: '', label: 'Selecione...' }, ...activities.map(a => ({ value: a.id_ativ, label: a.at_deno }))]}
-                                value={activityId}
-                                onChange={(e) => setActivityId(e.target.value)}
-                            />
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-slate-700">Atividade</label>
+                                <ActivitySelector 
+                                    activities={activities}
+                                    idOrds={idOrds}
+                                    selectedActivityId={selectedActivity?.id_ativ.toString() || ''}
+                                    onSelect={setSelectedActivity}
+                                />
+                            </div>
                             
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Descrição Adicional</label>
                                 <textarea
                                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     rows={2}
@@ -224,6 +283,17 @@ export const AppointmentEntry: React.FC = () => {
                         value={responsibilityId}
                         onChange={(e) => setResponsibilityId(e.target.value)}
                     />
+
+                    {/* Photos */}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Fotos (Evidências)</label>
+                        <input type="file" multiple accept="image/*" onChange={handlePhotoUpload} className="text-sm" />
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            {photos.map((p, idx) => (
+                                <div key={idx} className="text-xs bg-slate-100 p-1 rounded">{p.name}</div>
+                            ))}
+                        </div>
+                    </div>
 
                     <div className="pt-4 flex justify-end">
                         <button
