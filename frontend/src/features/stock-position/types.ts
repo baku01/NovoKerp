@@ -39,6 +39,14 @@ export interface ServiceOrder {
     id_ords: number;
     os_nume: string;
     os_desc: string;
+    id_cadt?: number;
+    os_tipo?: number;
+    os_hdrs?: number; // Valor adicional para domingos/feriados
+    os_hers?: number; // Valor adicional para horas extras
+    os_hnrs?: number; // Valor adicional para adicional noturno
+    os_hdom?: number; // Percentual para domingos/feriados
+    os_hext?: number; // Percentual para horas extras
+    os_hnot?: number; // Percentual para adicional noturno
 }
 
 export interface EmployeeCandidate {

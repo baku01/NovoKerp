@@ -7,7 +7,7 @@ import { uploadAppointmentPhoto, sendEmail } from './appointmentService';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { format } from 'date-fns';
-import { AppointmentResource, AppointmentActivity } from './types';
+import { AppointmentResource, AppointmentActivity, AppointmentResult } from './types';
 import { jsonDate } from '../../utils/formatters';
 
 export const AppointmentEntry: React.FC = () => {
@@ -112,7 +112,7 @@ export const AppointmentEntry: React.FC = () => {
 
             // Handle Photos
             if (result && result.length > 0 && photos.length > 0) {
-                const apntId = (result[0] as any).id_apnt; // Assuming procedure returns ID
+                const apntId = (result[0] as AppointmentResult).id_apnt; // Assuming procedure returns ID
                 if (apntId) {
                     for (const photo of photos) {
                         const reader = new FileReader();

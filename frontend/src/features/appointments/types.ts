@@ -85,3 +85,7 @@ export interface EmailConfig {
     subject: string;
     body: string; // HTML
 }
+
+export interface AppointmentResult {
+    id_apnt: number;
+}
