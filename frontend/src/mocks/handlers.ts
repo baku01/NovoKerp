@@ -10,7 +10,6 @@ import {
   mockHorasPremio,
   mockResourceSummary,
   mockPlanningDescriptions,
-  mockMenuItems,
   mockCompanies,
   mockUser,
   mockServiceOrders,
@@ -60,9 +59,6 @@ export const handlers = [
 
       case 'pesquisaEmpresas':
         return HttpResponse.json(mockCompanies);
-
-      case 'pesquisaMenu':
-        return HttpResponse.json(mockMenuItems);
 
       // ========== EMPLOYEE PROCEDURES ==========
       case 'pesquisaObrasDefinidas':
@@ -397,6 +393,53 @@ export const handlers = [
       // ========== DOCUMENT PROCEDURES ==========
       case 'pesquisaDocumentos':
         return HttpResponse.json(mockDocuments);
+
+      // ========== ADMIN / NOTIFICAÇÕES / MENUS ==========
+      case 'pesquisaNotificacoes':
+        return HttpResponse.json([
+          { id_note: 1, no_text: 'Nova OS aprovada', no_user: 'admin', no_dthr: '2025-01-10T12:00:00Z', no_read: 0 },
+          { id_note: 2, no_text: 'Prazo RDO hoje', no_user: 'gestor', no_dthr: '2025-01-09T08:30:00Z', no_read: 1 }
+        ]);
+      case 'atualizaNotificacao':
+        return HttpResponse.json([{ ok: true }]);
+      case 'pesquisaMenu':
+        return HttpResponse.json([
+          { id_posi: '+0000001', mn_pare: null, mn_deno: 'Admin', mn_tipo: 'M' },
+          { id_posi: '+0000002', mn_pare: '+0000001', mn_deno: 'Usuários', mn_tipo: 'T', mn_tela: 'admin/users' },
+        ]);
+      case 'insereAutoridade':
+        return HttpResponse.json([{ ok: true }]);
+      case 'pesquisaAutoridades':
+        return HttpResponse.json([{ id_posi: '+0000002' }]);
+      case 'insereMenu':
+      case 'deletaMenu':
+        return HttpResponse.json([{ ok: true }]);
+
+      // ========== BUSCAS GENÉRICAS ==========
+      case 'pesquisaUsuarios':
+        return HttpResponse.json([{ id_user: 'USER1', us_nome: 'João', us_mail: 'joao@test.com' }]);
+      case 'pesquisaClientes':
+        return HttpResponse.json([{ id_clie: 1, cl_nome: 'Cliente XPTO' }]);
+      case 'pesquisaMateriais':
+        return HttpResponse.json([{ id_dmat: 10, dm_deno: 'Cimento CP-II' }]);
+      case 'pesquisaOrdensServico':
+        return HttpResponse.json([{ id_ords: 5, os_desc: 'Montagem de estrutura' }]);
+
+      // ========== MAPAS ==========
+      case 'pesquisaLocaisUsuario':
+        return HttpResponse.json([
+          {
+            mp_data: '2025-01-08T12:00:00Z',
+            mp_ende: 'Rua A',
+            mp_nume: '100',
+            mp_cida: 'São Paulo',
+            mp_esta: 'SP',
+            mp_ncep: '01234000',
+            mp_lati: '-23.55',
+            mp_long: '-46.64',
+            us_nome: 'João',
+          },
+        ]);
 
       // ========== DEFAULT ==========
       default:

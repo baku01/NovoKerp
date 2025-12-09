@@ -1,6 +1,7 @@
-import { useUserStore } from '../stores/useUserStore';
-import type { User } from '../types';
-import { ClienteDashboard } from '../features/dashboard/ClienteDashboard';
+import { useUserStore } from "../stores/useUserStore";
+import type { User } from "../types";
+import { ClienteDashboard } from "../features/dashboard/ClienteDashboard";
+import { HomeIndicators } from "../features/dashboard/HomeIndicators";
 
 export function DashboardPage() {
     const user = useUserStore((state) => state.user) as User | null;
@@ -34,7 +35,10 @@ export function DashboardPage() {
 
             {/* Main Content - Dashboard */}
             <main>
-                <ClienteDashboard />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+                    <HomeIndicators />
+                    <ClienteDashboard />
+                </div>
             </main>
         </div>
     );
