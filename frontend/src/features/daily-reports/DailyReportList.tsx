@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useDailyReports } from './useDailyReports';
+import { useDailyReportResources, useRdoFinalized } from './useDailyReportDetails';
 import { useAllWorksites } from '../evaluations/useEvaluations';
 import { useProposals } from '../service-orders/useProposals'; // Reuse proposals hook
 import { DailyReportPhotos } from './DailyReportPhotos';
@@ -31,6 +32,12 @@ export const DailyReportList: React.FC = () => {
 
     // Selection for Photos
     const [selectedReport, setSelectedReport] = useState<DailyReport | null>(null);
+    const resourcesQuery = useDailyReportResources(selectedReport);
+    const finalizedQuery = useRdoFinalized(
+        selectedReport?.id_clie || 0,
+        selectedReport ? new Date(selectedReport.ro_data) : new Date(),
+        null
+    );
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (d: Date) => void) => {
         if (e.target.value) {
@@ -121,12 +128,67 @@ export const DailyReportList: React.FC = () => {
                 </div>
 
                 {/* Photos / Detail */}
-                <div className="lg:col-span-2 bg-white rounded-lg shadow overflow-hidden flex flex-col">
-                    {selectedReport ? (
-                        <DailyReportPhotos report={selectedReport} onClose={() => setSelectedReport(null)} />
-                    ) : (
-                        <div className="flex-1 flex items-center justify-center text-slate-400 p-8 text-center">
-                            Selecione um relatório ao lado para visualizar ou gerenciar fotos.
+                <div className="lg:col-span-2 space-y-4">
+                    <div className="bg-white rounded-lg shadow overflow-hidden flex flex-col">
+                        {selectedReport ? (
+                            <DailyReportPhotos report={selectedReport} onClose={() => setSelectedReport(null)} />
+                        ) : (
+                            <div className="flex-1 flex items-center justify-center text-slate-400 p-8 text-center">
+                                Selecione um relatório ao lado para visualizar ou gerenciar fotos.
+                            </div>
+                        )}
+                    </div>
+
+                    {selectedReport && (
+                        <div className="bg-white rounded-lg shadow overflow-hidden">
+                            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <div className="text-sm text-slate-500">Recursos do RDO</div>
+                                    <div className="text-base font-semibold text-slate-800">
+                                        {selectedReport.cl_fant} — {jsonDate(selectedReport.ro_data)}
+                                    </div>
+                                </div>
+                                <div className="text-sm text-slate-500">
+                                    Status:{' '}
+                                    {finalizedQuery.data?.[0]?.finalized ? (
+                                        <span className="text-emerald-600 font-semibold">Finalizado</span>
+                                    ) : (
+                                        <span className="text-amber-600 font-semibold">Em aberto</span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="overflow-x-auto">
+                                {resourcesQuery.isLoading ? (
+                                    <div className="p-4 text-slate-400">Carregando recursos...</div>
+                                ) : (resourcesQuery.data || []).length === 0 ? (
+                                    <div className="p-4 text-slate-400">Nenhum recurso encontrado para este RDO.</div>
+                                ) : (
+                                    <table className="min-w-full text-sm">
+                                        <thead className="bg-slate-100 text-slate-600">
+                                            <tr>
+                                                <th className="px-4 py-2 text-left">Funcionário</th>
+                                                <th className="px-4 py-2 text-left">Função</th>
+                                                <th className="px-4 py-2 text-center">Entrada</th>
+                                                <th className="px-4 py-2 text-center">Início</th>
+                                                <th className="px-4 py-2 text-center">Retorno</th>
+                                                <th className="px-4 py-2 text-center">Saída</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {(resourcesQuery.data || []).map((rc, idx) => (
+                                                <tr key={`${rc.id_matr}-${idx}`} className="border-b border-slate-100">
+                                                    <td className="px-4 py-2">{rc.fu_nome}</td>
+                                                    <td className="px-4 py-2">{rc.fu_func}</td>
+                                                    <td className="px-4 py-2 text-center">{rc.ap_hent ?? '-'}</td>
+                                                    <td className="px-4 py-2 text-center">{rc.ap_hiin ?? '-'}</td>
+                                                    <td className="px-4 py-2 text-center">{rc.ap_htin ?? '-'}</td>
+                                                    <td className="px-4 py-2 text-center">{rc.ap_hter ?? '-'}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>

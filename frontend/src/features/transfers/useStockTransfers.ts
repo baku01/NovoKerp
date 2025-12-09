@@ -33,6 +33,7 @@ export function useStockTransfers(filters: TransferFilters, mode: 'TRANSFER' | '
         items: itemsQuery.data || [],
         worksites: worksitesQuery.data || [],
         statuses: statusesQuery.data || [],
-        isLoading: itemsQuery.isLoading
+        isLoading: itemsQuery.isLoading,
+        refetch: () => itemsQuery.refetch()
     };
 }

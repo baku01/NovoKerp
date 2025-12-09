@@ -2,6 +2,28 @@ import { callProcedure, createParam, apiClient } from '../../api/procedures';
 import { DailyReport, RdoPhoto, RdoFilters } from './types';
 import { format } from 'date-fns';
 
+export interface RdoResource {
+    id_matr: number;
+    fu_nome: string;
+    fu_func: string;
+    ap_hent?: number;
+    ap_hiin?: number;
+    ap_htin?: number;
+    ap_hter?: number;
+    ap_feri?: number;
+}
+
+export interface RdoResourceByDate {
+    ap_data: string;
+    id_matr: number;
+    fu_nome: string;
+    fu_func: string;
+    ap_hent: number;
+    ap_hiin: number;
+    ap_htin: number;
+    ap_hter: number;
+}
+
 export async function fetchDailyReports(
     empresa: string,
     filters: RdoFilters
@@ -15,6 +37,71 @@ export async function fetchDailyReports(
         createParam('lnIdOrds', 'Int', filters.proposalId || null),
     ];
     return callProcedure<DailyReport>('pesquisaRelatoriosDiarioObra', params);
+}
+
+export async function fetchRdoResources(
+    empresa: string,
+    worksiteId: number,
+    date: Date
+): Promise<RdoResource[]> {
+    const params = [
+        createParam('lcIdEmpr', 'VarChar', empresa),
+        createParam('lnIdClie', 'Int', worksiteId),
+        createParam('ldRoData', 'SmallDatetime', format(date, 'yyyy-MM-dd')),
+    ];
+    return callProcedure<RdoResource>('pesquisaRecursosApontadosRelatorioDiarioObra', params);
+}
+
+export async function fetchRdoResourcesByDate(
+    empresa: string,
+    worksiteId: number,
+    date: Date
+): Promise<RdoResourceByDate[]> {
+    const params = [
+        createParam('lcIdEmpr', 'VarChar', empresa),
+        createParam('lnIdClie', 'Int', worksiteId),
+        createParam('ldApData', 'SmallDatetime', format(date, 'yyyy-MM-dd')),
+    ];
+    return callProcedure<RdoResourceByDate>('pesquisaRecursosDataApontamento', params);
+}
+
+export async function fetchRdoWorksitesByDate(
+    empresa: string,
+    date: Date
+) {
+    const params = [
+        createParam('lcIdEmpr', 'VarChar', empresa),
+        createParam('ldApData', 'SmallDatetime', format(date, 'yyyy-MM-dd')),
+    ];
+    return callProcedure<{ id_clie: number; cl_fant: string }>('pesquisaObrasDataApontamento', params);
+}
+
+export async function fetchRdoOrdersByDate(
+    empresa: string,
+    worksiteId: number,
+    date: Date
+) {
+    const params = [
+        createParam('lcIdEmpr', 'VarChar', empresa),
+        createParam('lnIdClie', 'Int', worksiteId),
+        createParam('ldApData', 'SmallDatetime', format(date, 'yyyy-MM-dd')),
+    ];
+    return callProcedure<{ id_ords: number; os_nume: string }>('pesquisaOrdensServicoDataApontamentoRdo', params);
+}
+
+export async function checkRdoFinalized(
+    empresa: string,
+    worksiteId: number,
+    date: Date,
+    orderId?: number | null
+) {
+    const params = [
+        createParam('lcIdEmpr', 'VarChar', empresa),
+        createParam('lnIdClie', 'Int', worksiteId),
+        createParam('ldApData', 'SmallDatetime', format(date, 'yyyy-MM-dd')),
+        createParam('lnIdOrds', 'Int', orderId || null),
+    ];
+    return callProcedure<{ finalized: number }>('consultaApontamentoFinalizado', params);
 }
 
 export async function fetchPhotos(

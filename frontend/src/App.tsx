@@ -10,11 +10,13 @@ import { ServiceOrderDashboard } from './features/service-orders/ServiceOrderDas
 import { ServiceOrderList } from './features/service-orders/ServiceOrderList';
 import { ServiceOrderPlanning } from './features/service-orders/ServiceOrderPlanning';
 import { PremiumHours } from './features/service-orders/PremiumHours';
+import { ServiceOrderConsolidated } from './features/service-orders/ServiceOrderConsolidated';
 import { AppointmentEntry } from './features/appointments/AppointmentEntry';
 import { ClientHistogram } from './features/dashboard/ClientHistogram';
 import { CompanyTable } from './features/dashboard/CompanyTable';
 import { EvaluationList } from './features/evaluations/EvaluationList';
 import { EvaluationForm } from './features/evaluations/EvaluationForm';
+import { EvaluationReport } from './features/evaluations/EvaluationReport';
 import { RecruitmentList } from './features/recruitment/RecruitmentList';
 import { DailyReportList } from './features/daily-reports/DailyReportList';
 import { DivergenceReport } from './features/divergences/DivergenceReport';
@@ -22,9 +24,11 @@ import { DailyResourcesList } from './features/resources/DailyResourcesList';
 import { StockPositionList } from './features/stock-position/StockPositionList';
 import { StockMovementForm } from './features/stock-movement/StockMovementForm';
 import { StockMovementList } from './features/transfers/StockMovementList';
+import { SecullumManager } from './features/appointments/SecullumManager';
 import { PurchasingList } from './features/purchasing/PurchasingList';
 import { ProductionOrderList } from './features/production-orders/ProductionOrderList';
 import { DocumentBrowser } from './features/documents/DocumentBrowser';
+import { AssetServiceReport } from './features/service-orders/bms/AssetServiceReport';
 import './index.css';
 
 // Protected Route wrapper
@@ -103,10 +107,26 @@ function App() {
             }
           />
           <Route
+            path="/os-consolidado"
+            element={
+              <ProtectedRoute>
+                <ServiceOrderConsolidated />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/apontamento"
             element={
               <ProtectedRoute>
                 <AppointmentEntry />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/secullum"
+            element={
+              <ProtectedRoute>
+                <SecullumManager />
               </ProtectedRoute>
             }
           />
@@ -147,6 +167,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <EvaluationList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/avaliacoes/relatorio"
+            element={
+              <ProtectedRoute>
+                <EvaluationReport />
               </ProtectedRoute>
             }
           />
@@ -235,6 +263,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <DocumentBrowser />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bms"
+            element={
+              <ProtectedRoute>
+                <AssetServiceReport />
               </ProtectedRoute>
             }
           />

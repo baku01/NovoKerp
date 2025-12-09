@@ -5,9 +5,14 @@ import { Select } from '../../components/ui/Select';
 import { format, subMonths } from 'date-fns';
 import { jsonDate, brDecimal, brMoney } from '../../utils/formatters';
 import { StockTransfer, StockReturn } from './types';
+import { TransferForm } from './TransferForm';
+import { useUserStore } from '../../stores/useUserStore';
+import { updateTransferStatus, deleteTransfer, updateReturn, deleteReturn } from './transferActions';
 
 export const StockMovementList: React.FC = () => {
     const [mode, setMode] = useState<'TRANSFER' | 'RETURN'>('TRANSFER');
+    const user = useUserStore((state) => state.user);
+    const empresa = useUserStore((state) => state.empresa);
     
     // Filters
     const [startDate, setStartDate] = useState<Date>(subMonths(new Date(), 1));
@@ -22,13 +27,46 @@ export const StockMovementList: React.FC = () => {
         statusId: parseInt(selectedStatus) || null
     }), [startDate, endDate, selectedWorksite, selectedStatus]);
 
-    const { items, worksites, statuses, isLoading } = useStockTransfers(filters, mode);
+    const { items, worksites, statuses, isLoading, refetch } = useStockTransfers(filters, mode);
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (d: Date) => void) => {
         if (e.target.value) {
             const [y, m, d] = e.target.value.split('-').map(Number);
             setter(new Date(y, m - 1, d));
         }
+    };
+
+    const handleTransferAction = async (
+        action: 'send' | 'finalize',
+        transferId?: number,
+        worksiteId?: number
+    ) => {
+        if (!user || !empresa || !transferId || !worksiteId) return;
+        await updateTransferStatus(user.id_user, empresa, action, {
+            transferId,
+            worksiteId,
+            sendDate: action === 'send' ? format(new Date(), 'yyyy-MM-dd') : undefined,
+            receiveDate: action === 'finalize' ? format(new Date(), 'yyyy-MM-dd') : undefined,
+        });
+        refetch();
+    };
+
+    const handleTransferDelete = async (transferId?: number) => {
+        if (!empresa || !transferId) return;
+        await deleteTransfer(empresa, transferId);
+        refetch();
+    };
+
+    const handleReturnAction = async (action: 'send', returnId?: number, worksiteId?: number) => {
+        if (!user || !empresa || !returnId || !worksiteId) return;
+        await updateReturn(user.id_user, empresa, returnId, worksiteId, 'send');
+        refetch();
+    };
+
+    const handleReturnDelete = async (returnId?: number) => {
+        if (!empresa || !returnId) return;
+        await deleteReturn(empresa, returnId);
+        refetch();
     };
 
     return (
@@ -86,7 +124,9 @@ export const StockMovementList: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow overflow-x-auto">
+            <div className="bg-white p-4 rounded-lg shadow overflow-x-auto space-y-4">
+                <TransferForm mode={mode} worksites={worksites} onCreated={() => refetch()} />
+
                 {isLoading ? (
                     <div className="text-center py-12 text-slate-400">Carregando...</div>
                 ) : items.length === 0 ? (
@@ -157,6 +197,37 @@ export const StockMovementList: React.FC = () => {
                                                 </p>
                                             </div>
                                         )}
+                                        <div className="md:col-span-2 flex flex-wrap gap-2 mt-2">
+                                            {mode === 'TRANSFER' ? (
+                                                <>
+                                                    <ActionButton
+                                                        label="Enviar"
+                                                        onClick={() => handleTransferAction('send', transfer?.id_strf, transfer?.id_clie)}
+                                                    />
+                                                    <ActionButton
+                                                        label="Finalizar"
+                                                        onClick={() => handleTransferAction('finalize', transfer?.id_strf, transfer?.id_clie)}
+                                                    />
+                                                    <ActionButton
+                                                        label="Excluir"
+                                                        variant="danger"
+                                                        onClick={() => handleTransferDelete(transfer?.id_strf)}
+                                                    />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <ActionButton
+                                                        label="Enviar"
+                                                        onClick={() => handleReturnAction('send', returnItem?.id_dves, returnItem?.id_clie)}
+                                                    />
+                                                    <ActionButton
+                                                        label="Excluir"
+                                                        variant="danger"
+                                                        onClick={() => handleReturnDelete(returnItem?.id_dves)}
+                                                    />
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </details>
                             );
@@ -174,3 +245,25 @@ const DetailRow: React.FC<{ label: string; value: string | undefined | null }> =
         <span className="text-slate-800 text-right">{value || '-'}</span>
     </div>
 );
+
+function ActionButton({
+    label,
+    onClick,
+    variant = 'primary',
+}: {
+    label: string;
+    onClick: () => void;
+    variant?: 'primary' | 'danger';
+}) {
+    const base =
+        'px-3 py-2 text-sm rounded-md transition-colors border';
+    const styles =
+        variant === 'danger'
+            ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
+            : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200';
+    return (
+        <button type="button" className={`${base} ${styles}`} onClick={onClick}>
+            {label}
+        </button>
+    );
+}

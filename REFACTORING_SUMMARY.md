@@ -58,6 +58,11 @@ type ServiceOrderType
 function getServiceOrderTypeName()
 ```
 
+### 4. Consolidação de OS e Relatórios
+- ✅ Criado `frontend/src/features/service-orders/ServiceOrderConsolidated.tsx` com visão unificada de horas planejadas/orçadas x apontadas, situação de apontamentos e detalhes da OS (equivalente ao legado `DashCnOrds.js`)
+- ✅ Novo serviço/hook `serviceOrderConsolidatedService.ts` / `useServiceOrderConsolidated.ts` chamando procedures `pesquisaDashboardHorasPlanejadasApontadas`, `pesquisaDashboardApontamentoSituacao` e `consultaDashboardProposta`
+- ✅ Criado `frontend/src/features/evaluations/EvaluationReport.tsx` para consolidar avaliações (ranking por funcionário/obra, médias por critério) substituindo os relatórios de `CadtRlAval.js`
+
 ---
 
 ## Componentes Já Existentes (Refatorados Anteriormente)
@@ -71,13 +76,15 @@ function getServiceOrderTypeName()
 - ✅ `PremiumHours.tsx` - Horas prêmio (DashApHrpr.js)
 - ✅ `ServiceOrderList.tsx` - Lista de OS (DashOsLcto.js)
 
-### Service Orders (6 componentes)
+### Service Orders (8 componentes)
 - ✅ `ServiceOrderDashboard.tsx`
 - ✅ `ServiceOrderPlanning.tsx` (ComlOsPlan.js)
 - ✅ `useAppointmentEntry.ts` (ComlOsApnt.js)
 - ✅ `useProposals.ts`
 - ✅ `CommentsManager.tsx` (ComlOsCmnt.js) - **Novo**
 - ✅ `TaskManager.tsx` (ComlOsTare.js) - **Novo**
+- ✅ `AssetServiceReport.tsx` (ComlApBmsv.js) - **Novo**
+- ✅ `ServiceOrderConsolidated.tsx` (DashCnOrds.js) - **Novo**
 
 ### Divergências
 - ✅ `DivergenceReport.tsx` (ComlApDvrg.js)
@@ -89,11 +96,17 @@ function getServiceOrderTypeName()
 - ✅ `DailyReportPhotos.tsx`
 - ✅ `dailyReportService.ts`
 - ✅ `useDailyReports.ts`
+- ✅ Detalhes de RDO (recursos e status) via `useDailyReportDetails.ts` integrado ao `DailyReportList.tsx`
 
 ### Avaliações e Recrutamento
 - ✅ `EvaluationForm.tsx` (CadtCnAval.js, CadtFuAval.js)
 - ✅ `EvaluationList.tsx` (CadtRlAval.js)
+- ✅ `EvaluationReport.tsx` (CadtRlAval.js) - **Novo**
 - ✅ `RecruitmentList.tsx` (CadtFuRecr.js)
+
+### Secullum / Apontamentos Biométricos
+- ✅ Serviços `secullumService.ts` + hooks `useSecullum.ts` cobrindo consultas, histórico, inserção manual, atualização e exclusão (ComlEdSecu.js / ComlApSecu.js)
+- ✅ UI inicial `SecullumManager.tsx` para listar, consultar histórico e realizar ajustes manuais
 
 ### Funcionários
 - ✅ `EmployeeList.tsx` (CadtRlFunc.js)
@@ -112,6 +125,7 @@ function getServiceOrderTypeName()
 - ✅ `useStockPosition.ts` (CestPsEstq.js)
 - ✅ `useStockMovement.ts`
 - ✅ `stockMovementService.ts`
+- ✅ `transferActions.ts` + testes MSW (CestStCadt.js, CestDeLcto.js, CestStLcto.js, CestStMvto.js) – criação/atualização/exclusão de solicitações de transferência e devoluções
 
 ### Recursos
 - ✅ `useResourceStatus.ts` (ComlDrRcso.js, ComlTbDrve.js)

@@ -13,9 +13,8 @@ This project contains comprehensive documentation for the React migration of Nov
 - **[TROUBLESHOOTING.md](frontend/TROUBLESHOOTING.md)** - Common issues and solutions
 
 #### For Project Management
-- **[SUMMARY.md](.gemini/antigravity/brain/ece2eb06-3062-4219-885c-38cb9cc323d4/SUMMARY.md)** - Executive summary
-- **[implementation_plan.md](.gemini/antigravity/brain/ece2eb06-3062-4219-885c-38cb9cc323d4/implementation_plan.md)** - Detailed migration plan
-- **[task.md](.gemini/antigravity/brain/ece2eb06-3062-4219-885c-38cb9cc323d4/task.md)** - Task tracking
+- **[MIGRATION_STATUS.md](MIGRATION_STATUS.md)** - Current migration status (React vs legado)
+- **[SYSTEM_OVERVIEW.md](SYSTEM_OVERVIEW.md)** - How the system works (rotas, features, stack)
 
 #### For Operations
 - **[DEPLOYMENT.md](frontend/DEPLOYMENT.md)** - Deployment checklist and guide
@@ -110,6 +109,7 @@ NovoKerp/
 - `/login` - Authentication page
 - `/dashboard` - Dashboard de Obras (migrated from DashCdClie.js)
 - `/funcionarios` - Employee list (migrated from CadtRlFunc.js)
+- `/bms` - Relatório de Bens de Serviço (migrated from ComlApBmsv.js)
 
 ---
 
