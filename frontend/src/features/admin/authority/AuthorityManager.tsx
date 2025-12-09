@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Input } from "../../../components/ui/Input";
 import { Button } from "../../../components/ui/Button";
@@ -31,8 +31,14 @@ export function AuthorityManager() {
         queryKey: ["authority", "user", selectedUserId],
         queryFn: () => fetchAuthorities(empresa ?? "", selectedUserId),
         enabled: !!empresa && !!selectedUserId,
-        onSuccess: (list) => setSelected(new Set(list.map((a) => a.id_posi.trim().replace("M", "+")))),
     });
+
+    // React Query v5: onSuccess removido, usar useEffect
+    useEffect(() => {
+        if (authoritiesQuery.data) {
+            setSelected(new Set(authoritiesQuery.data.map((a) => a.id_posi.trim().replace("M", "+"))));
+        }
+    }, [authoritiesQuery.data]);
 
     const tree = useMemo(() => buildTree(menu), [menu]);
 
