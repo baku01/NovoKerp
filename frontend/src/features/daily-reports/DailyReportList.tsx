@@ -1,47 +1,53 @@
-import React, { useState, useMemo } from 'react';
-import { useDailyReports } from './useDailyReports';
-import { useDailyReportResources, useRdoFinalized } from './useDailyReportDetails';
-import { useAllWorksites } from '../evaluations/useEvaluations';
-import { useProposals } from '../service-orders/useProposals'; // Reuse proposals hook
-import { DailyReportPhotos } from './DailyReportPhotos';
-import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
-import { format, subDays } from 'date-fns';
-import { jsonDate } from '../../utils/formatters';
-import { DailyReport } from './types';
+import React, { useState, useMemo } from "react";
+import { useDailyReports } from "./useDailyReports";
+import { useDailyReportResources, useRdoFinalized, useUpdateRdoFinalization } from "./useDailyReportDetails";
+import { useAllWorksites } from "../evaluations/useEvaluations";
+import { useProposals } from "../service-orders/useProposals"; // Reuse proposals hook
+import { DailyReportPhotos } from "./DailyReportPhotos";
+import { Input } from "../../components/ui/Input";
+import { Select } from "../../components/ui/Select";
+import { Button } from "../../components/ui/Button";
+import { format, subDays } from "date-fns";
+import { jsonDate } from "../../utils/formatters";
+import { DailyReport } from "./types";
 
 export const DailyReportList: React.FC = () => {
     // Filters
     const [startDate, setStartDate] = useState<Date>(subDays(new Date(), 7));
     const [endDate, setEndDate] = useState<Date>(new Date());
-    const [selectedWorksite, setSelectedWorksite] = useState<string>('0');
-    const [selectedProposal, setSelectedProposal] = useState<string>('0');
+    const [selectedWorksite, setSelectedWorksite] = useState<string>("0");
+    const [selectedProposal, setSelectedProposal] = useState<string>("0");
 
     // Only fetch proposals if a worksite is selected
     const { proposals } = useProposals(parseInt(selectedWorksite) || 0);
 
-    const filters = useMemo(() => ({
-        startDate,
-        endDate,
-        worksiteId: parseInt(selectedWorksite) || null,
-        proposalId: parseInt(selectedProposal) || null
-    }), [startDate, endDate, selectedWorksite, selectedProposal]);
+    const filters = useMemo(
+        () => ({
+            startDate,
+            endDate,
+            worksiteId: parseInt(selectedWorksite) || null,
+            proposalId: parseInt(selectedProposal) || null,
+        }),
+        [startDate, endDate, selectedWorksite, selectedProposal],
+    );
 
     const { reports, isLoading } = useDailyReports(filters);
     const { worksites } = useAllWorksites();
 
     // Selection for Photos
     const [selectedReport, setSelectedReport] = useState<DailyReport | null>(null);
+    const selectedDate = selectedReport ? new Date(selectedReport.ro_data) : new Date();
     const resourcesQuery = useDailyReportResources(selectedReport);
-    const finalizedQuery = useRdoFinalized(
+    const finalizedQuery = useRdoFinalized(selectedReport?.id_clie || 0, selectedDate, selectedReport?.id_ords);
+    const finalizeMutation = useUpdateRdoFinalization(
         selectedReport?.id_clie || 0,
-        selectedReport ? new Date(selectedReport.ro_data) : new Date(),
-        null
+        selectedDate,
+        selectedReport?.id_ords,
     );
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (d: Date) => void) => {
         if (e.target.value) {
-            const [y, m, d] = e.target.value.split('-').map(Number);
+            const [y, m, d] = e.target.value.split("-").map(Number);
             setter(new Date(y, m - 1, d));
         }
     };
@@ -55,36 +61,36 @@ export const DailyReportList: React.FC = () => {
                     <Input
                         type="date"
                         label="Data Inicial"
-                        value={format(startDate, 'yyyy-MM-dd')}
+                        value={format(startDate, "yyyy-MM-dd")}
                         onChange={(e) => handleDateChange(e, setStartDate)}
                     />
                     <Input
                         type="date"
                         label="Data Final"
-                        value={format(endDate, 'yyyy-MM-dd')}
+                        value={format(endDate, "yyyy-MM-dd")}
                         onChange={(e) => handleDateChange(e, setEndDate)}
                     />
                     <Select
                         label="Obra"
                         options={[
-                            { value: '0', label: 'TODAS AS OBRAS' },
-                            ...worksites.map(w => ({ value: w.id_clie, label: w.cl_fant }))
+                            { value: "0", label: "TODAS AS OBRAS" },
+                            ...worksites.map((w) => ({ value: w.id_clie, label: w.cl_fant })),
                         ]}
                         value={selectedWorksite}
                         onChange={(e) => {
                             setSelectedWorksite(e.target.value);
-                            setSelectedProposal('0'); // Reset proposal when worksite changes
+                            setSelectedProposal("0"); // Reset proposal when worksite changes
                         }}
                     />
                     <Select
                         label="Proposta (OS)"
                         options={[
-                            { value: '0', label: 'TODAS' },
-                            ...proposals.map(p => ({ value: p.id_ords, label: `${p.os_nume} - ${p.os_desc}` }))
+                            { value: "0", label: "TODAS" },
+                            ...proposals.map((p) => ({ value: p.id_ords, label: `${p.os_nume} - ${p.os_desc}` })),
                         ]}
                         value={selectedProposal}
                         onChange={(e) => setSelectedProposal(e.target.value)}
-                        disabled={selectedWorksite === '0'}
+                        disabled={selectedWorksite === "0"}
                     />
                 </div>
             </div>
@@ -104,12 +110,12 @@ export const DailyReportList: React.FC = () => {
                         ) : (
                             <ul className="divide-y divide-slate-100">
                                 {reports.map((rdo, idx) => (
-                                    <li 
+                                    <li
                                         key={`${rdo.id_clie}-${rdo.ro_data}-${idx}`}
                                         onClick={() => setSelectedReport(rdo)}
                                         className={`
                                             p-4 cursor-pointer hover:bg-blue-50 transition-colors
-                                            ${selectedReport === rdo ? 'bg-blue-50 border-l-4 border-blue-500' : ''}
+                                            ${selectedReport === rdo ? "bg-blue-50 border-l-4 border-blue-500" : ""}
                                         `}
                                     >
                                         <div className="flex justify-between items-start mb-1">
@@ -148,12 +154,30 @@ export const DailyReportList: React.FC = () => {
                                         {selectedReport.cl_fant} — {jsonDate(selectedReport.ro_data)}
                                     </div>
                                 </div>
-                                <div className="text-sm text-slate-500">
-                                    Status:{' '}
-                                    {finalizedQuery.data?.[0]?.finalized ? (
-                                        <span className="text-emerald-600 font-semibold">Finalizado</span>
-                                    ) : (
-                                        <span className="text-amber-600 font-semibold">Em aberto</span>
+                                <div className="flex items-center gap-4">
+                                    <div className="text-sm text-slate-500">
+                                        Status:{" "}
+                                        {finalizedQuery.data?.[0]?.finalized ? (
+                                            <span className="text-emerald-600 font-semibold">Finalizado</span>
+                                        ) : (
+                                            <span className="text-amber-600 font-semibold">Em aberto</span>
+                                        )}
+                                    </div>
+                                    {selectedReport && (
+                                        <Button
+                                            size="sm"
+                                            onClick={() => {
+                                                const isFinalized = (finalizedQuery.data?.[0]?.finalized ?? 0) > 0;
+                                                finalizeMutation.mutate(!isFinalized);
+                                            }}
+                                            disabled={finalizeMutation.isPending}
+                                        >
+                                            {finalizeMutation.isPending
+                                                ? "Atualizando..."
+                                                : (finalizedQuery.data?.[0]?.finalized ?? 0) > 0
+                                                  ? "Reabrir RDO"
+                                                  : "Finalizar RDO"}
+                                        </Button>
                                     )}
                                 </div>
                             </div>
@@ -179,10 +203,10 @@ export const DailyReportList: React.FC = () => {
                                                 <tr key={`${rc.id_matr}-${idx}`} className="border-b border-slate-100">
                                                     <td className="px-4 py-2">{rc.fu_nome}</td>
                                                     <td className="px-4 py-2">{rc.fu_func}</td>
-                                                    <td className="px-4 py-2 text-center">{rc.ap_hent ?? '-'}</td>
-                                                    <td className="px-4 py-2 text-center">{rc.ap_hiin ?? '-'}</td>
-                                                    <td className="px-4 py-2 text-center">{rc.ap_htin ?? '-'}</td>
-                                                    <td className="px-4 py-2 text-center">{rc.ap_hter ?? '-'}</td>
+                                                    <td className="px-4 py-2 text-center">{rc.ap_hent ?? "-"}</td>
+                                                    <td className="px-4 py-2 text-center">{rc.ap_hiin ?? "-"}</td>
+                                                    <td className="px-4 py-2 text-center">{rc.ap_htin ?? "-"}</td>
+                                                    <td className="px-4 py-2 text-center">{rc.ap_hter ?? "-"}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

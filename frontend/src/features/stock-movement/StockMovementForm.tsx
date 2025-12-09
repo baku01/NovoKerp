@@ -8,7 +8,7 @@ import { useStockItems, useStockMovementMutation } from './useStockMovement';
 import { StockMovementHeader, StockMovementItem } from './types';
 import { brDecimal, brMoney } from '../../utils/formatters';
 import { StockPhotoCapture } from './StockPhotoCapture'; // Import StockPhotoCapture
-import { uploadStockMovementPhoto } from './stockMovementService'; // Import uploadStockMovementPhoto
+import { uploadStockMovementPhoto, compareFaces } from './stockMovementService'; // Import uploadStockMovementPhoto
 
 export const StockMovementForm: React.FC = () => {
     // Header State
@@ -29,6 +29,29 @@ export const StockMovementForm: React.FC = () => {
     // Items State
     const [items, setItems] = useState<StockMovementItem[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+
+    const fetchFacialReference = async (lcFuEmpr: string, lcFuMatr: string): Promise<string | null> => {
+        // Legacy saved at fotos/facial/{EMPR}{MATR}/{EMPR}{MATR}.png
+        const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+        const path = `${apiBase}/fotos/facial/${lcFuEmpr}${lcFuMatr}/${lcFuEmpr}${lcFuMatr}.png`;
+
+        try {
+            const response = await fetch(path, { cache: 'no-store' });
+            if (!response.ok) {
+                return null;
+            }
+            const blob = await response.blob();
+            return await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = (err) => reject(err);
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.warn('Erro ao buscar facial de referência', error);
+            return null;
+        }
+    };
 
     // Fetch dependencies
     // Use 'A' (Asset/Position) mode for single date queries which maps to legacy `pesquisaObrasDefinidas` and `pesquisaFuncionarios`
@@ -103,28 +126,44 @@ export const StockMovementForm: React.FC = () => {
                 const lcFuMatr = header.id_matr_func.toString();
                 const workPath = `facial/${lcFuEmpr}${lcFuMatr}/`;
                 const fileName = `${lcFuEmpr}${lcFuMatr}.png`;
-                
+
+                const referencePhoto = await fetchFacialReference(lcFuEmpr, lcFuMatr);
+                if (referencePhoto) {
+                    const comparison = await compareFaces(capturedPhoto, referencePhoto);
+                    if (!comparison.equal) {
+                        alert("A foto capturada não corresponde à facial cadastrada. Movimentação bloqueada.");
+                        setIsUploadingPhoto(false);
+                        return;
+                    }
+                } else {
+                    const proceed = confirm("Não foi encontrada facial cadastrada para este funcionário. Deseja continuar mesmo assim?");
+                    if (!proceed) {
+                        setIsUploadingPhoto(false);
+                        return;
+                    }
+                }
+
                 await uploadStockMovementPhoto(capturedPhoto, workPath, fileName);
                 alert("Foto salva com sucesso!");
-                    } catch (photoError: unknown) {
-                        console.error("Erro ao salvar a foto:", photoError);
-                        alert("Erro ao salvar a foto. A movimentação não será salva.");
-                        setIsUploadingPhoto(false);
-                        return; // Prevent stock movement save if photo upload fails
-                    } finally {
-                        setIsUploadingPhoto(false);
-                    }
-                } else if (capturedPhoto) {
-                    alert("Não é possível associar a foto sem um funcionário válido no contexto 'Funcionário'. A movimentação não será salva.");
-                    return; // Prevent stock movement save if photo is captured but context is wrong
-                }
-            
-            
-                // Geolocation
-                let lat = '', long = '';
-                if (navigator.geolocation) {
-                    try {
-                        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+            } catch (photoError: unknown) {
+                console.error("Erro ao salvar a foto:", photoError);
+                alert("Erro ao salvar a foto. A movimentação não será salva.");
+                setIsUploadingPhoto(false);
+                return; // Prevent stock movement save if photo upload fails
+            } finally {
+                setIsUploadingPhoto(false);
+            }
+        } else if (capturedPhoto) {
+            alert("Não é possível associar a foto sem um funcionário válido no contexto 'Funcionário'. A movimentação não será salva.");
+            return; // Prevent stock movement save if photo is captured but context is wrong
+        }
+
+
+        // Geolocation
+        let lat = '', long = '';
+        if (navigator.geolocation) {
+            try {
+                const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
                             navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
                         });
                         lat = pos.coords.latitude.toString();

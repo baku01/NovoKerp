@@ -86,7 +86,7 @@ export function UserProfileSettings() {
                             required: "E-mail obrigatório",
                             pattern: { value: /\S+@\S+\.\S+/, message: "E-mail inválido" },
                         })}
-                        error={profileForm.formState.errors.email}
+                        error={profileForm.formState.errors.email?.message}
                     />
                     <Button type="submit" disabled={profileMutation.isPending}>
                         {profileMutation.isPending ? "Salvando..." : "Salvar dados"}

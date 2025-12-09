@@ -7,8 +7,10 @@ import {
     fetchRdoWorksitesByDate,
     fetchRdoOrdersByDate,
     checkRdoFinalized,
+    updateRdoFinalization,
 } from './dailyReportService';
 import { format } from 'date-fns';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useDailyReportResources(report: DailyReport | null) {
     const empresa = useUserStore((state) => state.empresa);
@@ -55,5 +57,17 @@ export function useRdoFinalized(worksiteId: number, date: Date, orderId?: number
         queryKey: ['rdo', 'finalized', empresa, worksiteId, orderId ?? 0, format(date, 'yyyy-MM-dd')],
         queryFn: () => checkRdoFinalized(empresa, worksiteId, date, orderId),
         enabled: !!empresa && worksiteId > 0,
+    });
+}
+
+export function useUpdateRdoFinalization(worksiteId: number, date: Date, orderId?: number | null) {
+    const empresa = useUserStore((state) => state.empresa);
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (finalized: boolean) => updateRdoFinalization(empresa, worksiteId, date, finalized, orderId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['rdo', 'finalized'] });
+            queryClient.invalidateQueries({ queryKey: ['rdo', 'resources'] });
+        },
     });
 }

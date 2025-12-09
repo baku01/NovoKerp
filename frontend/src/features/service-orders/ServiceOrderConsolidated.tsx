@@ -273,7 +273,7 @@ export const ServiceOrderConsolidated: React.FC = () => {
                                 <>
                                     <dt className="text-slate-400">RDO Pendentes</dt>
                                     <dd className="text-slate-100">
-                                        {summary.cl_qrdo - summary.cl_qaro} / {summary.cl_qrdo}
+                                        {(summary.cl_qrdo ?? 0) - (summary.cl_qaro ?? 0)} / {summary.cl_qrdo ?? 0}
                                     </dd>
                                     <dt className="text-slate-400">% Avanço</dt>
                                     <dd className="text-slate-100">{brDecimal(summary.cl_pavc)}%</dd>
