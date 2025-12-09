@@ -199,11 +199,11 @@ export const StockMovementForm: React.FC = () => {
     const totalCost = items.reduce((acc, i) => acc + (i.mv_qtde * i.mv_pcus || i.mv_qtde * i.ce_vcus), 0);
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
             <h1 className="text-xl font-bold text-slate-800">Movimentação de Estoque</h1>
 
             {/* Header */}
-            <div className="bg-white p-4 rounded-lg shadow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="panel p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Select
                     label="Tipo"
                     options={[{ value: 'E', label: 'ENTRADA' }, { value: 'S', label: 'SAÍDA' }]}
@@ -282,7 +282,7 @@ export const StockMovementForm: React.FC = () => {
             )}
 
             {/* Items */}
-            <div className="bg-white p-4 rounded-lg shadow flex-1 flex flex-col">
+            <div className="panel p-5 flex-1 flex flex-col">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-bold">Itens ({items.filter(i => i.mv_qtde > 0).length})</h2>
                     <Input

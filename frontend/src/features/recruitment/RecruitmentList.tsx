@@ -43,9 +43,9 @@ export const RecruitmentList: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
             {/* Header */}
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="panel p-5">
                 <h1 className="text-xl font-bold text-slate-800 mb-4">Histórico de Funcionários (Demitidos)</h1>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

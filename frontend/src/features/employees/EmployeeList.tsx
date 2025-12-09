@@ -4,6 +4,8 @@ import { formatCpf, brMoney, jsonDate } from '../../utils/formatters';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Employee } from './types';
+import { PageLayout } from '../../components/layout/PageLayout';
+import { Panel } from '../../components/layout/Panel';
 
 export const EmployeeList: React.FC = () => {
   const [date, setDate] = useState<Date>(new Date());
@@ -83,142 +85,142 @@ export const EmployeeList: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
-      {/* Header & Filters */}
-      <div className="bg-white p-4 rounded-lg shadow space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-slate-800">Recursos</h1>
-          <div className="text-sm text-slate-500">
-             {employees.length} registros encontrados
+    <PageLayout
+      title="Recursos"
+      subtitle="Planejamento, alocação e status por obra"
+      tag="Operação"
+      actions={<div className="text-sm text-slate-200/80">{employees.length} registros</div>}
+    >
+      <div className="space-y-4">
+        <Panel title="Filtros" subtitle="Ajuste a visão do quadro de recursos">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <Input
+              type="date"
+              label="Data"
+              value={date.toISOString().split('T')[0]}
+              onChange={handleDateChange}
+            />
+
+            <Select
+              label="Obra"
+              options={[
+                { value: '0/0', label: 'TODAS AS OBRAS' },
+                ...obras.map(o => ({
+                  value: `${o.id_clie}/${o.id_cadt}`,
+                  label: o.cl_fant
+                }))
+              ]}
+              value={selectedObra}
+              onChange={(e) => setSelectedObra(e.target.value)}
+            />
+
+            <Select
+              label="Tipo"
+              options={[
+                  { value: '', label: 'TODOS' },
+                  ...tipos.map(t => ({ value: t.cb_tmdo, label: t.cb_tmdo }))
+              ]}
+              value={selectedTipo}
+              onChange={(e) => setSelectedTipo(e.target.value)}
+              disabled={isLoading}
+            />
+
+            <Select
+              label="Função"
+              options={[
+                  { value: '', label: 'TODAS' },
+                  ...funcoes.map(f => ({ value: f.fu_func, label: f.fu_func }))
+              ]}
+              value={selectedFunc}
+              onChange={(e) => setSelectedFunc(e.target.value)}
+              disabled={isLoading}
+            />
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          <Input
-            type="date"
-            label="Data"
-            value={date.toISOString().split('T')[0]}
-            onChange={handleDateChange}
-          />
-
-          <Select
-            label="Obra"
-            options={[
-              { value: '0/0', label: 'TODAS AS OBRAS' },
-              ...obras.map(o => ({
-                value: `${o.id_clie}/${o.id_cadt}`,
-                label: o.cl_fant
-              }))
-            ]}
-            value={selectedObra}
-            onChange={(e) => setSelectedObra(e.target.value)}
-          />
-
-          <Select
-            label="Tipo"
-            options={[
-                { value: '', label: 'TODOS' },
-                ...tipos.map(t => ({ value: t.cb_tmdo, label: t.cb_tmdo }))
-            ]}
-            value={selectedTipo}
-            onChange={(e) => setSelectedTipo(e.target.value)}
-            disabled={isLoading}
-          />
-
-          <Select
-            label="Função"
-            options={[
-                { value: '', label: 'TODAS' },
-                ...funcoes.map(f => ({ value: f.fu_func, label: f.fu_func }))
-            ]}
-            value={selectedFunc}
-            onChange={(e) => setSelectedFunc(e.target.value)}
-            disabled={isLoading}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Select
-             label="Buscar Por"
-             options={[
-                 { value: 'NOME', label: 'NOME' },
-                 { value: 'ID_MATR', label: 'MATRÍCULA' }
-             ]}
-             value={searchType}
-             onChange={(e) => setSearchType(e.target.value)}
-          />
-          <div className="md:col-span-2">
-             <Input
-               label="Pesquisa"
-               placeholder={searchType === 'NOME' ? 'Digite o nome...' : 'Digite a matrícula...'}
-               value={searchText}
-               onChange={(e) => setSearchText(e.target.value)}
-             />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <Select
+              label="Buscar Por"
+              options={[
+                  { value: 'NOME', label: 'NOME' },
+                  { value: 'ID_MATR', label: 'MATRÍCULA' }
+              ]}
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value)}
+            />
+            <div className="md:col-span-2">
+              <Input
+                label="Pesquisa"
+                placeholder={searchType === 'NOME' ? 'Digite o nome...' : 'Digite a matrícula...'}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
-      </div>
+        </Panel>
 
-      {/* Summary Table */}
-      {summary.length > 0 && (
-        <div className="bg-white p-4 rounded-lg shadow overflow-x-auto">
-          <h2 className="text-lg font-semibold mb-2">Resumo de Recursos</h2>
-          <table className="min-w-full text-sm text-left text-slate-600 border-collapse">
-            <thead className="bg-slate-100 text-xs uppercase font-semibold">
-              <tr>
-                <th className="px-4 py-2 border">Função</th>
-                <th className="px-4 py-2 border text-center">Plan</th>
-                <th className="px-4 py-2 border text-center">Atualização</th>
-                <th className="px-4 py-2 border text-center">Real</th>
-                <th className="px-4 py-2 border text-center">Dif (Atual - Real)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {summary.map((item) => (
-                <tr key={item.fu_sgla} className="hover:bg-slate-50">
-                  <td className="px-4 py-2 border font-medium">{item.fu_sgla}</td>
-                  <td 
-                    className="px-4 py-2 border text-center cursor-help decoration-dotted underline" 
-                    title={getPlanningTooltip(item.fu_sgla, 'P')}
-                  >
-                    {item.fu_qtde}
-                  </td>
-                  <td 
-                    className="px-4 py-2 border text-center cursor-help decoration-dotted underline"
-                    title={getPlanningTooltip(item.fu_sgla, 'R')}
-                  >
-                    {item.rp_qtde}
-                  </td>
-                  <td className="px-4 py-2 border text-center">{item.qt_rcso}</td>
-                  <td className="px-4 py-2 border text-center font-bold">
-                    {item.rp_qtde - item.qt_rcso}
-                  </td>
-                </tr>
-              ))}
-              <tr className="bg-slate-100 font-bold">
-                <td className="px-4 py-2 border">TOTAL</td>
-                <td className="px-4 py-2 border text-center">{summaryTotals.fu_qtde}</td>
-                <td className="px-4 py-2 border text-center">{summaryTotals.rp_qtde}</td>
-                <td className="px-4 py-2 border text-center">{summaryTotals.qt_rcso}</td>
-                <td className="px-4 py-2 border text-center">
-                    {summaryTotals.rp_qtde - summaryTotals.qt_rcso}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      )}
+        {summary.length > 0 && (
+          <Panel title="Resumo de Recursos">
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm text-left text-slate-600 border-collapse">
+                <thead className="bg-slate-100 text-xs uppercase font-semibold">
+                  <tr>
+                    <th className="px-4 py-2 border">Função</th>
+                    <th className="px-4 py-2 border text-center">Plan</th>
+                    <th className="px-4 py-2 border text-center">Atualização</th>
+                    <th className="px-4 py-2 border text-center">Real</th>
+                    <th className="px-4 py-2 border text-center">Dif (Atual - Real)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {summary.map((item) => (
+                    <tr key={item.fu_sgla} className="hover:bg-slate-50/80">
+                      <td className="px-4 py-2 border font-medium">{item.fu_sgla}</td>
+                      <td 
+                        className="px-4 py-2 border text-center cursor-help decoration-dotted underline" 
+                        title={getPlanningTooltip(item.fu_sgla, 'P')}
+                      >
+                        {item.fu_qtde}
+                      </td>
+                      <td 
+                        className="px-4 py-2 border text-center cursor-help decoration-dotted underline"
+                        title={getPlanningTooltip(item.fu_sgla, 'R')}
+                      >
+                        {item.rp_qtde}
+                      </td>
+                      <td className="px-4 py-2 border text-center">{item.qt_rcso}</td>
+                      <td className="px-4 py-2 border text-center font-bold">
+                        {item.rp_qtde - item.qt_rcso}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="bg-slate-100 font-bold">
+                    <td className="px-4 py-2 border">TOTAL</td>
+                    <td className="px-4 py-2 border text-center">{summaryTotals.fu_qtde}</td>
+                    <td className="px-4 py-2 border text-center">{summaryTotals.rp_qtde}</td>
+                    <td className="px-4 py-2 border text-center">{summaryTotals.qt_rcso}</td>
+                    <td className="px-4 py-2 border text-center">
+                        {summaryTotals.rp_qtde - summaryTotals.qt_rcso}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        )}
 
-      {/* Employee List */}
-      <div className="space-y-2">
-         {isLoading || isFetchingEmployees ? (
-             <div className="text-center py-8 text-slate-500">Carregando dados...</div>
-         ) : (
+        <div className="space-y-2">
+          {isLoading || isFetchingEmployees ? (
+            <Panel className="p-6 text-center">
+              <div className="text-slate-600">Carregando dados...</div>
+            </Panel>
+          ) : (
             employees.map((emp) => (
-                <EmployeeCard key={`${emp.id_matr}-${emp.fu_nome}`} employee={emp} />
+              <EmployeeCard key={`${emp.id_matr}-${emp.fu_nome}`} employee={emp} />
             ))
-         )}
+          )}
+        </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
@@ -229,8 +231,8 @@ const EmployeeCard: React.FC<{ employee: Employee }> = ({ employee }) => {
     const displayNome = hasSalarioFixo ? `* ${employee.fu_nome}` : employee.fu_nome;
 
     return (
-        <details className="bg-white rounded-lg shadow group overflow-hidden">
-            <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 list-none">
+        <details className="panel group overflow-hidden">
+            <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-blue-50/60 list-none transition-colors">
                 <div className="flex flex-col">
                     <span className="font-bold text-slate-800">{displayNome}</span>
                     <span className="text-xs text-slate-500">{employee.em_fant}</span>

@@ -57,9 +57,9 @@ export const EvaluationList: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
             {/* Header & Actions */}
-            <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+            <div className="panel p-5 flex justify-between items-center">
                 <div className="flex flex-col">
                     <h1 className="text-xl font-bold text-slate-800">Avaliações de Desempenho</h1>
                     {state?.employeeName && (
@@ -78,7 +78,7 @@ export const EvaluationList: React.FC = () => {
             </div>
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div className="panel p-5 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <Input
                     type="date"
                     label="Data Inicial"
@@ -123,7 +123,7 @@ export const EvaluationList: React.FC = () => {
             </div>
 
             {/* List */}
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="panel p-5">
                 {isLoading ? (
                     <div className="text-center py-12 text-slate-400">Carregando avaliações...</div>
                 ) : evaluations.length === 0 ? (

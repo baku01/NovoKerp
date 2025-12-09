@@ -185,9 +185,9 @@ export const ClientHistogram: React.FC = () => {
     }, [resources]);
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
             {/* Header */}
-            <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+            <div className="panel p-5 flex justify-between items-center">
                 <h1 className="text-xl font-bold text-slate-800">Histograma de Recursos</h1>
                 <button 
                     onClick={() => setShowConfig(!showConfig)}
@@ -199,7 +199,7 @@ export const ClientHistogram: React.FC = () => {
 
             {/* Controls */}
             {showConfig && (
-                <div className="bg-white p-4 rounded-lg shadow grid grid-cols-3 gap-4 items-end animate-fade-in">
+                <div className="panel p-5 grid grid-cols-3 gap-4 items-end animate-fade-in">
                     <Input 
                         label="Tam. Mínimo" 
                         type="number" 
@@ -223,7 +223,7 @@ export const ClientHistogram: React.FC = () => {
                 </div>
             )}
 
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="panel p-5">
                  <Input
                     type="date"
                     label="Data de Referência"

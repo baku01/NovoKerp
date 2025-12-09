@@ -64,7 +64,7 @@ export function StockInsight({ defaultItemId }: StockInsightProps) {
     };
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow space-y-4">
+        <div className="panel p-5 space-y-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-slate-800">Análise de Estoque</h2>
                 <Button type="button" onClick={handleLoad} disabled={loading}>

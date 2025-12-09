@@ -63,7 +63,7 @@ export const AppointmentComments: React.FC<Props> = ({ idClie, idOrds, date }) =
     if (idClie === 0 || idOrds === 0) return null;
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="panel p-5">
             <h3 className="font-semibold text-slate-700 mb-2">Comentários do Dia</h3>
             {isLoading ? (
                 <div className="text-sm text-slate-400">Carregando...</div>

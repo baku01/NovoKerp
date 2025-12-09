@@ -64,7 +64,7 @@ export const MultiSelect = ({
     return (
         <div className="w-full relative" ref={containerRef}>
             {label && (
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                     {label}
                 </label>
             )}
@@ -73,11 +73,11 @@ export const MultiSelect = ({
                 onClick={() => !disabled && setIsOpen(!isOpen)}
                 disabled={disabled}
                 className={`
-                    w-full px-3 py-2 text-left border rounded-lg bg-white
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                    w-full px-3.5 py-3 text-left border rounded-xl bg-white/90 shadow-inner shadow-slate-200/40
+                    focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/80
                     disabled:bg-slate-100 disabled:cursor-not-allowed
-                    flex justify-between items-center
-                    ${error ? 'border-red-500' : 'border-slate-300'}
+                    flex justify-between items-center transition-all
+                    ${error ? 'border-rose-400 focus:ring-rose-400/60' : 'border-slate-200'}
                     ${className}
                 `}
             >
@@ -87,11 +87,17 @@ export const MultiSelect = ({
                         : `${value.length} selected`
                     }
                 </span>
-                <span className="ml-2 text-slate-400">▼</span>
+                <span
+                    className={`ml-2 text-slate-400 transition-transform duration-150 ${
+                        isOpen ? "rotate-180" : ""
+                    }`}
+                >
+                    ▼
+                </span>
             </button>
 
             {isOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-slate-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                <div className="absolute z-10 w-full mt-2 bg-white/95 border border-slate-200 rounded-xl shadow-2xl max-h-60 overflow-auto backdrop-blur">
                     {options.length > 0 && (
                         <div
                             className="px-4 py-2 cursor-pointer hover:bg-slate-50 border-b border-slate-100 font-semibold text-sm text-blue-600"
@@ -103,7 +109,7 @@ export const MultiSelect = ({
                     {options.map((option) => (
                         <div
                             key={option.value}
-                            className="flex items-center px-4 py-2 cursor-pointer hover:bg-slate-50"
+                            className="flex items-center px-4 py-2 cursor-pointer hover:bg-blue-50/70 transition-colors"
                             onClick={() => handleToggleOption(option.value)}
                         >
                             <input
@@ -124,7 +130,7 @@ export const MultiSelect = ({
             )}
             
             {error && (
-                <p className="mt-1 text-sm text-red-600">{error.message}</p>
+                <p className="mt-1 text-sm text-rose-600">{error.message}</p>
             )}
             {helperText && !error && (
                 <p className="mt-1 text-sm text-slate-500">{helperText}</p>

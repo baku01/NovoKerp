@@ -1,18 +1,116 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap");
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Manrope", "Inter", system-ui, -apple-system, sans-serif;
+  
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+  --color-primary-950: #082f49;
+
+  --color-slate-850: #172033;
+  --color-slate-925: #0a101f;
+}
 
 @layer base {
   :root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
 
-    font-synthesis: none;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    font-weight: 500;
+    color: #f1f5f9; /* slate-100 */
+    background-color: #0b1224; /* slate-950+ */
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
+      radial-gradient(circle at 85% 30%, rgba(14, 165, 233, 0.08), transparent 25%),
+      linear-gradient(180deg, #0b1224 0%, #020617 100%);
+    color: #f8fafc;
+  }
+
+  /* Smooth scrolling for the whole page */
+  html {
+     scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background: rgba(59, 130, 246, 0.3);
+    color: #fff;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(51, 65, 85, 0.8);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(71, 85, 105, 1);
+  }
+}
+
+@layer components {
+  /* Utility class for glassmorphism panels */
+  .panel-glass {
+    @apply relative overflow-hidden rounded-xl border border-white/5 bg-slate-900/40 shadow-sm backdrop-blur-xl transition-all duration-300;
+  }
+
+  .panel-glass:hover {
+    @apply border-white/10 shadow-md bg-slate-900/50;
+  }
+  
+  .input-glass {
+    @apply bg-slate-900/50 border border-slate-700/50 text-slate-100 placeholder-slate-500 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 shadow-sm transition-all;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 transition-all active:scale-95;
   }
 }

@@ -165,8 +165,8 @@ export const AppointmentEntry: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
-            <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
+            <div className="panel p-5 flex justify-between items-center">
                 <div>
                     <h1 className="text-xl font-bold text-slate-800">Novo Apontamento</h1>
                     <p className="text-sm text-slate-500">{clientName}</p>
@@ -177,7 +177,7 @@ export const AppointmentEntry: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Col: Resources & Comments */}
                 <div className="lg:col-span-1 space-y-4">
-                    <div className="bg-white p-4 rounded-lg shadow flex flex-col max-h-[500px]">
+                    <div className="panel p-5 flex flex-col max-h-[500px]">
                         <h2 className="font-semibold text-slate-700 mb-2">Recursos Disponíveis</h2>
                         <Input 
                             type="date" 
@@ -214,7 +214,7 @@ export const AppointmentEntry: React.FC = () => {
                 </div>
 
                 {/* Right Col: Form */}
-                <div className="bg-white p-4 rounded-lg shadow lg:col-span-2 space-y-4">
+                <div className="panel p-5 lg:col-span-2 space-y-4">
                     <h2 className="font-semibold text-slate-700">Dados do Apontamento</h2>
                     
                     <Select

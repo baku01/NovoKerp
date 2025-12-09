@@ -34,9 +34,9 @@ export const CompanyTable: React.FC = () => {
 
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
             {/* Header & Controls */}
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="panel p-5">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-xl font-bold text-slate-800">Tabela de Obras</h1>
                     <Input
@@ -61,7 +61,7 @@ export const CompanyTable: React.FC = () => {
             </div>
 
             {/* Aggregated Totals & Gauges */}
-            <div className="bg-white p-4 rounded-lg shadow grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="panel p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col items-center justify-center space-y-2">
                     <CircularGauge
                         value={aggregatedData.percHorasTotaisConsumidas / 100}
@@ -104,7 +104,7 @@ export const CompanyTable: React.FC = () => {
 
 
             {/* Worksites Table */}
-            <div className="bg-white p-4 rounded-lg shadow overflow-x-auto">
+            <div className="panel p-5 overflow-x-auto">
                 {isLoading ? (
                     <div className="text-center py-8 text-slate-500">Carregando...</div>
                 ) : obras.length === 0 ? (

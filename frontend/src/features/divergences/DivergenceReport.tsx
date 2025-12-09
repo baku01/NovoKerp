@@ -32,8 +32,8 @@ export const DivergenceReport: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
-            <div className="bg-white p-4 rounded-lg shadow">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
+            <div className="panel p-5">
                 <h1 className="text-xl font-bold text-slate-800 mb-4">Divergências de Apontamento</h1>
                 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -85,7 +85,7 @@ export const DivergenceReport: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow overflow-x-auto">
+            <div className="panel p-5 overflow-x-auto">
                 {isLoading ? (
                     <div className="text-center py-12 text-slate-400">Carregando...</div>
                 ) : divergences.length === 0 ? (

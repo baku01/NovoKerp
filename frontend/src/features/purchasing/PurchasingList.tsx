@@ -79,9 +79,9 @@ export const PurchasingList: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
             {/* Header */}
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="panel p-5">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-xl font-bold text-slate-800">Pedidos de Compra</h1>
                     <div className="space-x-2">

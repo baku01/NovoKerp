@@ -129,9 +129,9 @@ export const EvaluationForm: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
             {/* Header */}
-            <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+            <div className="panel p-5 flex justify-between items-center">
                 <h1 className="text-xl font-bold text-slate-800">
                     {isEdit ? 'Editar Avaliação' : 'Nova Avaliação'}
                 </h1>
@@ -142,7 +142,7 @@ export const EvaluationForm: React.FC = () => {
 
             <form onSubmit={handleSave} className="space-y-4">
                 {/* Context Info */}
-                <div className="bg-white p-4 rounded-lg shadow grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="panel p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
                         type="date"
                         label="Data"
@@ -212,7 +212,7 @@ export const EvaluationForm: React.FC = () => {
                 </div>
 
                 {/* Scores */}
-                <div className="bg-white p-4 rounded-lg shadow">
+                <div className="panel p-5">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="font-semibold text-slate-700">Critérios de Avaliação (0-10)</h2>
                         <div className="text-sm">
@@ -236,7 +236,7 @@ export const EvaluationForm: React.FC = () => {
                 </div>
 
                 {/* Technical Scores */}
-                <div className="bg-white p-4 rounded-lg shadow">
+                <div className="panel p-5">
                     <h2 className="font-semibold text-slate-700 mb-4">Avaliação Técnica (0-10)</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {TECHNICAL_FIELDS.map(field => (
@@ -255,7 +255,7 @@ export const EvaluationForm: React.FC = () => {
                 </div>
 
                 {/* Additional Info */}
-                <div className="bg-white p-4 rounded-lg shadow grid grid-cols-1 gap-4">
+                <div className="panel p-5 grid grid-cols-1 gap-4">
                     <Input
                         label="Sugestão de Salário"
                         type="number"

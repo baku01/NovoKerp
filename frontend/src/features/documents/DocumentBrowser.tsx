@@ -21,10 +21,10 @@ export const DocumentBrowser: React.FC = () => {
     const { items: folders, isLoading: loadingFolders } = useDocuments(rootPath, false);
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
             <h1 className="text-xl font-bold text-slate-800">Documentos (Drive)</h1>
 
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="panel p-5">
                 <Select
                     label="Local"
                     options={[
@@ -38,7 +38,7 @@ export const DocumentBrowser: React.FC = () => {
                 />
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow flex-1">
+            <div className="panel p-5 flex-1">
                 {loadingFolders ? (
                     <div className="text-center py-8 text-slate-500">Carregando pastas...</div>
                 ) : folders.length === 0 ? (

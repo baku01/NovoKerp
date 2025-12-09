@@ -92,8 +92,8 @@ export const StockPositionList: React.FC = () => {
     }, [stockData, type]);
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
-            <div className="bg-white p-4 rounded-lg shadow space-y-4">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
+            <div className="panel p-5 space-y-4">
                 <h1 className="text-xl font-bold text-slate-800">Relatório de Estoque</h1>
 
                 <div className="flex space-x-4 mb-4">
@@ -185,7 +185,7 @@ export const StockPositionList: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow flex-1">
+            <div className="panel p-5 flex-1">
                 {loadingData ? (
                     <div className="text-center py-8 text-slate-500">Carregando dados...</div>
                 ) : groupedData.length === 0 ? (

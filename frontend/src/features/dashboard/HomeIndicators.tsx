@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useUserStore } from "../../stores/useUserStore";
 import { callProcedure, createParam } from "../../api/procedures";
 import { Button } from "../../components/ui/Button";
+import { Panel } from "../../components/layout/Panel";
 
 export function HomeIndicators() {
     const user = useUserStore((state) => state.user);
@@ -38,27 +39,33 @@ export function HomeIndicators() {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white shadow rounded-xl p-4">
-                <div className="text-sm text-slate-500">Orçamentos pendentes</div>
-                <div className="text-3xl font-bold text-slate-900">
-                    {orcamentosQuery.isLoading ? "..." : (orcamentosQuery.data?.length ?? 0)}
+            <Panel className="p-5" subtitle="Solicitações aguardando ação" title="Orçamentos pendentes">
+                <div className="flex items-center justify-between">
+                    <div className="text-4xl font-black text-slate-900">
+                        {orcamentosQuery.isLoading ? "..." : (orcamentosQuery.data?.length ?? 0)}
+                    </div>
+                    <div className="h-10 w-10 rounded-xl bg-blue-50 text-blue-700 grid place-items-center font-semibold">
+                        ↗
+                    </div>
                 </div>
-            </div>
-            <div className="bg-white shadow rounded-xl p-4">
-                <div className="text-sm text-slate-500">Notificações não lidas</div>
-                <div className="text-3xl font-bold text-slate-900">
-                    {notificacoesQuery.isLoading ? "..." : (notificacoesQuery.data?.length ?? 0)}
+            </Panel>
+
+            <Panel className="p-5" subtitle="Alertas para você" title="Notificações não lidas">
+                <div className="flex items-center justify-between">
+                    <div className="text-4xl font-black text-slate-900">
+                        {notificacoesQuery.isLoading ? "..." : (notificacoesQuery.data?.length ?? 0)}
+                    </div>
+                    <div className="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 grid place-items-center font-semibold">
+                        !
+                    </div>
                 </div>
-            </div>
-            <div className="bg-white shadow rounded-xl p-4 flex items-center justify-between">
-                <div>
-                    <div className="text-sm text-slate-500">Ações rápidas</div>
-                    <div className="text-base font-semibold text-slate-900">Abrir dashboard</div>
-                </div>
+            </Panel>
+
+            <Panel className="p-5 flex items-center justify-between" subtitle="Acesso rápido ao cockpit" title="Ações rápidas">
                 <Button type="button" variant="secondary">
-                    Abrir
+                    Abrir dashboard
                 </Button>
-            </div>
+            </Panel>
         </div>
     );
 }

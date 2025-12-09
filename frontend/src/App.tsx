@@ -31,6 +31,7 @@ import { DocumentBrowser } from "./features/documents/DocumentBrowser";
 import { AssetServiceReport } from "./features/service-orders/bms/AssetServiceReport";
 import { ActivityPanel } from "./features/service-orders/ActivityPanel";
 import { AdminPage } from "./pages/AdminPage";
+import { AppShell } from "./components/layout/AppShell";
 import "./index.css";
 
 // Protected Route wrapper
@@ -41,7 +42,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         return <Navigate to="/login" replace />;
     }
 
-    return <>{children}</>;
+    return <AppShell>{children}</AppShell>;
 }
 
 // Create React Query client

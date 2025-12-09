@@ -69,8 +69,8 @@ export const StockMovementList: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
-            <div className="bg-white p-4 rounded-lg shadow">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
+            <div className="panel p-5">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-xl font-bold text-slate-800">Movimentações de Estoque</h1>
                     <div className="flex space-x-2">
@@ -123,7 +123,7 @@ export const StockMovementList: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow overflow-x-auto space-y-4">
+            <div className="panel p-5 overflow-x-auto space-y-4">
                 <TransferForm mode={mode} worksites={worksites} onCreated={() => refetch()} />
 
                 {isLoading ? (

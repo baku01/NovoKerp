@@ -63,7 +63,7 @@ export function ActivityPanel() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-xl font-bold text-slate-800">Atividades da OS</h1>
@@ -75,7 +75,7 @@ export function ActivityPanel() {
             </div>
 
             {/* Filtros */}
-            <div className="bg-white p-4 rounded-lg shadow grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="panel p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input
                     type="date"
                     label="Data"

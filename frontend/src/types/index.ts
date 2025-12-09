@@ -8,6 +8,7 @@ export interface User {
   id_posi: number;
   id_oper: number;
   ws_http: string;
+  ad_admi?: string;
 }
 
 // LoginResponse é equivalente a User

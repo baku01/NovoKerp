@@ -52,9 +52,9 @@ export const ServiceOrderList: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
              {/* Header */}
-             <div className="bg-white p-4 rounded-lg shadow">
+             <div className="panel p-5">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-xl font-bold text-slate-800">{clientName}</h1>
                     <button 
@@ -87,7 +87,7 @@ export const ServiceOrderList: React.FC = () => {
              </div>
 
              {/* Controls */}
-             <div className="bg-white p-4 rounded-lg shadow grid grid-cols-1 md:grid-cols-2 gap-4">
+             <div className="panel p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                  <Input
                     type="date"
                     label="Data de Referência"
@@ -163,7 +163,7 @@ const OrderCard = ({ order, hoursType, onClick, onPlanClick }: { order: ServiceO
         <div 
             onClick={onClick}
             className={`
-                bg-white p-4 rounded-lg shadow cursor-pointer transition-all hover:shadow-md border-2 relative
+                panel p-5 cursor-pointer transition-all hover:shadow-md border-2 relative
                 ${order.os_pcon >= 100 ? 'border-green-500' : 'border-transparent'}
             `}
         >

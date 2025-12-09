@@ -97,7 +97,7 @@ export function TransferForm({ mode, worksites, onCreated }: TransferFormProps) 
     };
 
     return (
-        <form onSubmit={handleSubmit} className="bg-white p-4 rounded-lg shadow space-y-4">
+        <form onSubmit={handleSubmit} className="panel p-5 space-y-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-slate-800">{title}</h2>
                 <Button type="submit" disabled={isSaving || !user || !empresa}>

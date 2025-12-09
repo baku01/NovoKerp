@@ -54,8 +54,8 @@ export function SecullumManager() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
-            <div className="bg-white p-4 rounded-lg shadow space-y-4">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
+            <div className="panel p-5 space-y-4">
                 <h1 className="text-xl font-bold text-slate-800">Apontamentos Secullum</h1>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <Select
@@ -96,7 +96,7 @@ export function SecullumManager() {
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                <div className="bg-white p-4 rounded-lg shadow">
+                <div className="panel p-5">
                     <h2 className="text-lg font-semibold mb-2">Apontamentos</h2>
                     {isLoading ? (
                         <div className="text-slate-400 text-sm">Carregando...</div>
@@ -145,7 +145,7 @@ export function SecullumManager() {
                     )}
                 </div>
 
-                <div className="bg-white p-4 rounded-lg shadow space-y-3">
+                <div className="panel p-5 space-y-3">
                     <h2 className="text-lg font-semibold">Histórico / Ajuste Manual</h2>
                     {selectedEmployee ? (
                         <>

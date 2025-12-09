@@ -4,6 +4,8 @@ import { usePremiumHours } from './usePremiumHours';
 import { Input } from '../../components/ui/Input';
 import { format } from 'date-fns';
 import { jsonDate } from '../../utils/formatters';
+import { PageLayout } from '../../components/layout/PageLayout';
+import { Panel } from '../../components/layout/Panel';
 
 export const PremiumHours: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -88,121 +90,126 @@ export const PremiumHours: React.FC = () => {
         }
     };
 
-    if (idClie === 0) return <div className="p-4 text-center">Cliente inválido.</div>;
+    if (idClie === 0) {
+        return (
+            <PageLayout title="Horas Prêmio" subtitle="Selecione um cliente válido" tag="Serviços">
+                <Panel className="p-6 text-center text-slate-600">Cliente inválido.</Panel>
+            </PageLayout>
+        );
+    }
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
-            <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
-                <div>
-                    <h1 className="text-xl font-bold text-slate-800">Horas Prêmio</h1>
-                    <p className="text-sm text-slate-500">{clientName}</p>
-                </div>
-                <button 
-                    onClick={() => navigate(-1)}
-                    className="text-sm text-blue-600 hover:underline"
-                >
-                    Voltar
-                </button>
-            </div>
+        <PageLayout title="Horas Prêmio" subtitle={clientName} tag="Serviços">
+            <div className="space-y-4">
+                <Panel className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-xl font-bold text-slate-800">Horas Prêmio</h1>
+                        <p className="text-sm text-slate-500">{clientName}</p>
+                    </div>
+                    <button 
+                        onClick={() => navigate(-1)}
+                        className="text-sm text-blue-600 hover:underline"
+                    >
+                        Voltar
+                    </button>
+                </Panel>
 
-            <div className="bg-white p-4 rounded-lg shadow space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                        type="date"
-                        label="Data da Posição (Referência)"
-                        value={format(positionDate, 'yyyy-MM-dd')}
-                        onChange={(e) => handleDateChange(e, setPositionDate)}
-                    />
-                    <Input
-                        type="date"
-                        label="Filtrar Lista por Data"
-                        value={format(referenceDate, 'yyyy-MM-dd')}
-                        onChange={(e) => handleDateChange(e, setReferenceDate)}
-                    />
-                </div>
-
-                <hr className="border-slate-100" />
-
-                <h2 className="font-semibold text-slate-700">Novo Lançamento</h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Panel className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
                             type="date"
-                            label="Data"
-                            value={format(newDate, 'yyyy-MM-dd')}
-                            onChange={(e) => handleDateChange(e, setNewDate)}
-                            required
+                            label="Data da Posição (Referência)"
+                            value={format(positionDate, 'yyyy-MM-dd')}
+                            onChange={(e) => handleDateChange(e, setPositionDate)}
                         />
-                        <div className="w-full">
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Hora (HH:MM)</label>
-                            <input
+                        <Input
+                            type="date"
+                            label="Filtrar Lista por Data"
+                            value={format(referenceDate, 'yyyy-MM-dd')}
+                            onChange={(e) => handleDateChange(e, setReferenceDate)}
+                        />
+                    </div>
+
+                    <hr className="border-slate-100" />
+
+                    <h2 className="font-semibold text-slate-700">Novo Lançamento</h2>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <Input
+                                type="date"
+                                label="Data"
+                                value={format(newDate, 'yyyy-MM-dd')}
+                                onChange={(e) => handleDateChange(e, setNewDate)}
+                                required
+                            />
+                            <Input
                                 type="time"
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                label="Hora (HH:MM)"
                                 value={newTime}
                                 onChange={(e) => setNewTime(e.target.value)}
                                 required
                             />
-                        </div>
-                        <div className="md:col-span-3">
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
-                            <textarea
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                rows={2}
-                                value={newDesc}
-                                onChange={(e) => setNewDesc(e.target.value.toUpperCase())}
-                                required
-                            />
-                        </div>
-                    </div>
-                    
-                    {error && <p className="text-red-500 text-sm">{error}</p>}
-
-                    <div className="flex justify-end">
-                        <button
-                            type="submit"
-                            disabled={isInserting}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 transition-colors"
-                        >
-                            {isInserting ? 'Salvando...' : 'Adicionar'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div className="bg-white p-4 rounded-lg shadow">
-                <h2 className="font-semibold text-slate-700 mb-4">Histórico</h2>
-                {isLoading ? (
-                    <div className="text-center text-slate-400">Carregando...</div>
-                ) : premiumHours.length === 0 ? (
-                     <div className="text-center text-slate-400">Nenhum registro encontrado.</div>
-                ) : (
-                    <div className="space-y-2">
-                        {premiumHours.map((item) => (
-                            <div key={item.id_hrpr} className="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors flex justify-between items-start group">
-                                <div>
-                                    <div className="flex items-center space-x-2 mb-1">
-                                        <span className="font-bold text-slate-800">{jsonDate(item.ah_data)}</span>
-                                        <span className="text-sm text-slate-500">•</span>
-                                        <span className="font-bold text-purple-600">
-                                            {/* Convert decimal 1.30 to 1:30 display */}
-                                            {item.ah_hora.toFixed(2).replace('.', ':')}
-                                        </span>
-                                    </div>
-                                    <p className="text-sm text-slate-700">{item.ah_desc}</p>
-                                    <p className="text-xs text-slate-400 mt-1">Usuário: {item.id_user}</p>
-                                </div>
-                                <button
-                                    onClick={() => handleDelete(item.id_hrpr, item.ah_data)}
-                                    className="text-red-400 hover:text-red-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    title="Excluir"
-                                >
-                                    ✕
-                                </button>
+                            <div className="md:col-span-3">
+                                <label className="block text-sm font-medium text-slate-700 mb-2">Descrição</label>
+                                <textarea
+                                    className="w-full px-3.5 py-3 rounded-xl border border-slate-200 bg-white/90 shadow-inner shadow-slate-200/40 focus:outline-none focus:ring-2 focus:ring-blue-500/60"
+                                    rows={2}
+                                    value={newDesc}
+                                    onChange={(e) => setNewDesc(e.target.value.toUpperCase())}
+                                    required
+                                />
                             </div>
-                        ))}
-                    </div>
-                )}
+                        </div>
+                        
+                        {error && <p className="text-rose-600 text-sm">{error}</p>}
+
+                        <div className="flex justify-end">
+                            <button
+                                type="submit"
+                                disabled={isInserting}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 transition-colors"
+                            >
+                                {isInserting ? 'Salvando...' : 'Adicionar'}
+                            </button>
+                        </div>
+                    </form>
+                </Panel>
+
+                <Panel className="p-5">
+                    <h2 className="font-semibold text-slate-700 mb-4">Histórico</h2>
+                    {isLoading ? (
+                        <div className="text-center text-slate-400">Carregando...</div>
+                    ) : premiumHours.length === 0 ? (
+                        <div className="text-center text-slate-400">Nenhum registro encontrado.</div>
+                    ) : (
+                        <div className="space-y-2">
+                            {premiumHours.map((item) => (
+                                <div key={item.id_hrpr} className="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors flex justify-between items-start group">
+                                    <div>
+                                        <div className="flex items-center space-x-2 mb-1">
+                                            <span className="font-bold text-slate-800">{jsonDate(item.ah_data)}</span>
+                                            <span className="text-sm text-slate-500">•</span>
+                                            <span className="font-bold text-purple-600">
+                                                {/* Convert decimal 1.30 to 1:30 display */}
+                                                {item.ah_hora.toFixed(2).replace('.', ':')}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-slate-700">{item.ah_desc}</p>
+                                        <p className="text-xs text-slate-400 mt-1">Usuário: {item.id_user}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleDelete(item.id_hrpr, item.ah_data)}
+                                        className="text-red-400 hover:text-red-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        title="Excluir"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Panel>
             </div>
-        </div>
+        </PageLayout>
     );
 };

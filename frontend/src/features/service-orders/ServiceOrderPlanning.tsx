@@ -39,9 +39,9 @@ export const ServiceOrderPlanning: React.FC = () => {
     const percConsumed = totalPlanned > 0 ? (totalRealized / totalPlanned) * 100 : 0;
 
     return (
-        <div className="flex flex-col h-full bg-slate-50 p-4 space-y-4 overflow-y-auto">
+        <div className="flex flex-col h-full space-y-4 overflow-y-auto">
             {/* Header */}
-            <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+            <div className="panel p-5 flex justify-between items-center">
                 <div>
                     <h1 className="text-xl font-bold text-slate-800">Planejamento da OS</h1>
                     <p className="text-sm text-slate-500">{clientName} (ID: {idOrds})</p>
@@ -61,7 +61,7 @@ export const ServiceOrderPlanning: React.FC = () => {
                 />
 
                 {/* Stats & Visualization */}
-                <div className="bg-white p-4 rounded-lg shadow space-y-6">
+                <div className="panel p-5 space-y-6">
                     <h2 className="font-semibold text-slate-700 mb-4">Evolução e Desvios</h2>
                     
                     <div className="flex justify-around">
@@ -154,7 +154,7 @@ const PlanningContent: React.FC<PlanningContentProps> = ({ progress, situations,
     };
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow space-y-6">
+        <div className="panel p-5 space-y-6">
             <div>
                 <h2 className="font-semibold text-slate-700 mb-2">Atualizar Progresso (%)</h2>
                 <div className="flex space-x-2">
