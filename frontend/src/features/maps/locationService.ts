@@ -12,13 +12,13 @@ export interface LocationRecord {
   us_nome: string;
 }
 
-export async function fetchUserLocations(companyId: string, userId: string, startDate?: string, endDate?: string) {
+export async function fetchUserLocations(companyId: string, userId: string, startDate?: string, endDate?: string): Promise<LocationRecord[]> {
   const params = [
     createParam('lcIdEmpr', 'VarChar', companyId),
     createParam('lcIdUser', 'VarChar', userId),
-    createParam('ldMpDtde', 'SmallDateTime', startDate ?? null),
-    createParam('ldMpDtat', 'SmallDateTime', endDate ?? null),
+    createParam('ldMpDtde', 'SmallDatetime', startDate ?? null),
+    createParam('ldMpDtat', 'SmallDatetime', endDate ?? null),
   ];
 
-  return callProcedure<LocationRecord[]>('pesquisaLocaisUsuario', params);
+  return callProcedure<LocationRecord>('pesquisaLocaisUsuario', params);
 }

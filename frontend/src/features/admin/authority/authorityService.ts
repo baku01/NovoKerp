@@ -13,7 +13,7 @@ export interface AuthorityItem {
   id_posi: string;
 }
 
-export async function fetchMenu(companyId: string, menuType: string | null = null) {
+export async function fetchMenu(companyId: string, menuType: string | null = null): Promise<MenuItem[]> {
   const params = [
     createParam('lcIdEmpr', 'VarChar', companyId),
     createParam('lcIdUser', 'VarChar', null),
@@ -21,16 +21,16 @@ export async function fetchMenu(companyId: string, menuType: string | null = nul
     createParam('lcIdPosi', 'VarChar', null),
   ];
 
-  return callProcedure<MenuItem[]>('pesquisaMenu', params);
+  return callProcedure<MenuItem>('pesquisaMenu', params);
 }
 
-export async function fetchAuthorities(companyId: string, userId: string) {
+export async function fetchAuthorities(companyId: string, userId: string): Promise<AuthorityItem[]> {
   const params = [
     createParam('lcIdEmpr', 'VarChar', companyId),
     createParam('lcIdUser', 'VarChar', userId),
   ];
 
-  return callProcedure<AuthorityItem[]>('pesquisaAutoridades', params);
+  return callProcedure<AuthorityItem>('pesquisaAutoridades', params);
 }
 
 export async function updateAuthorities(companyId: string, userId: string, positions: string[]) {

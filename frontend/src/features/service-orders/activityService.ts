@@ -5,11 +5,13 @@ export interface ActivityReport {
     id_ords: number;
     os_nume: string;
     id_ativ: number;
+    id_excl?: number;
     at_deno: string;
     at_tipo: string;
     ap_dres?: number;
     ap_hent?: number;
     ap_hter?: number;
+    ap_real?: string;
 }
 
 export interface ActivityComment {

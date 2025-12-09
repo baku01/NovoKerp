@@ -14,7 +14,7 @@ export interface NotificationItem {
   no_read: number;
 }
 
-export async function fetchNotifications(userId: string, companyId: string, filter: NotificationFilter = {}) {
+export async function fetchNotifications(userId: string, companyId: string, filter: NotificationFilter = {}): Promise<NotificationItem[]> {
   const params = [
     createParam('lcIdUser', 'VarChar', userId),
     createParam('lcIdEmpr', 'VarChar', companyId),
@@ -23,7 +23,7 @@ export async function fetchNotifications(userId: string, companyId: string, filt
     createParam('ldNoDtat', 'SmallDatetime', filter.endDate ?? null),
   ];
 
-  return callProcedure<NotificationItem[]>('pesquisaNotificacoes', params);
+  return callProcedure<NotificationItem>('pesquisaNotificacoes', params);
 }
 
 export async function updateNotification(

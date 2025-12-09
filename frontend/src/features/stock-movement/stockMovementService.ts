@@ -69,3 +69,14 @@ export async function uploadStockMovementPhoto(
     const response = await apiClient.post('/insereFoto', payload);
     return response.data;
 }
+
+export async function compareFaces(
+    capturedBase64: string,
+    referenceBase64: string
+): Promise<{ equal: boolean }> {
+    const response = await apiClient.post('/comparaFaces', {
+        lcBsFot1: capturedBase64,
+        lcBsFot2: referenceBase64,
+    });
+    return { equal: !!response.data?.eh_igua };
+}
