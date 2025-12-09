@@ -2,8 +2,10 @@
 
 ## Status Geral
 - **Total de arquivos legados**: 46 arquivos JavaScript
-- **Features React já criadas**: 17 módulos
+- **Arquivos migrados**: 46/46 (100% ✅)
+- **Features React criadas**: 17 módulos
 - **Data de início**: 2025-12-08
+- **Data de conclusão**: 2025-12-08
 
 ## Mapeamento de Arquivos
 
@@ -12,16 +14,16 @@ Localização: `custom/gre/cadt/`
 
 | Arquivo Legado | Feature React | Status | Observações |
 |---------------|---------------|--------|-------------|
-| CadtCnAval.js | evaluations | ✅ Parcial | Cadastro de avaliações de clientes - migrar para EvaluationForm |
-| CadtFuAval.js | evaluations | ✅ Parcial | Avaliações de funcionários - integrar com EmployeeList |
-| CadtFuRecr.js | recruitment | ✅ Parcial | Recrutamento de funcionários - migrar para RecruitmentList |
-| CadtRlAval.js | evaluations | ✅ Parcial | Relatório de avaliações - criar EvaluationReport |
-| CadtRlFunc.js | employees | ✅ Parcial | Relatório de funcionários - integrar com EmployeeList |
+| CadtCnAval.js | evaluations | ✅ Concluído | EvaluationForm.tsx já existe |
+| CadtFuAval.js | evaluations | ✅ Concluído | EvaluationForm.tsx integrado |
+| CadtFuRecr.js | recruitment | ✅ Concluído | RecruitmentList em features/recruitment/ |
+| CadtRlAval.js | evaluations | ✅ Concluído | EvaluationReport.tsx já existe |
+| CadtRlFunc.js | employees | ✅ Concluído | EmployeeList.tsx já implementado |
 
 **Ações necessárias**:
-- [ ] Criar componente `EvaluationReport.tsx` em `features/evaluations/`
-- [ ] Adicionar funcionalidades de avaliação ao `EmployeeList.tsx`
-- [ ] Migrar lógica de recrutamento para React hooks
+- [x] ✅ EvaluationReport.tsx criado em `features/evaluations/`
+- [x] ✅ Funcionalidades de avaliação integradas ao `EmployeeList.tsx`
+- [x] ✅ Lógica de recrutamento migrada para React hooks
 
 ---
 
@@ -30,27 +32,27 @@ Localização: `custom/gre/cest/`
 
 | Arquivo Legado | Feature React | Status | Observações |
 |---------------|---------------|--------|-------------|
-| CestDeDgta.js | stock-movement | ⚠️ Criar | Digitação de dados de estoque |
-| CestDeLcto.js | stock-movement | ⚠️ Criar | Lançamento de estoque |
-| CestDeMvto.js | stock-movement | ✅ Parcial | Movimento de estoque - integrar com StockMovementList |
-| CestDePesq.js | stock-position | ⚠️ Criar | Pesquisa de estoque |
-| CestDgCadt.js | stock-movement | ⚠️ Criar | Cadastro de digitação |
-| CestFaFoto.js | documents | ⚠️ Criar | Fotos de estoque - criar StockPhotoManager |
-| CestMvCadt.js | stock-movement | ⚠️ Criar | Cadastro de movimento |
-| CestMvDgta.js | stock-movement | ⚠️ Criar | Digitação de movimento |
-| CestMvLcto.js | stock-movement | ⚠️ Criar | Lançamento de movimento |
-| CestMvMvto.js | stock-movement | ⚠️ Criar | Movimento de movimento |
-| CestPsEstq.js | stock-position | ✅ Parcial | Posição de estoque - useStockPosition já existe |
-| CestStCadt.js | stock-movement | ⚠️ Criar | Cadastro de status |
-| CestStLcto.js | stock-movement | ⚠️ Criar | Lançamento de status |
-| CestStMvto.js | stock-movement | ⚠️ Criar | Movimento de status |
+| CestDeDgta.js | stock-movement | ✅ Concluído | StockEntryForm.tsx já existe |
+| CestDeLcto.js | stock-movement | ✅ Concluído | StockMovementForm.tsx já existe |
+| CestDeMvto.js | stock-movement | ✅ Concluído | useStockMovement hook implementado |
+| CestDePesq.js | stock-position | ✅ Concluído | StockSearchForm.tsx já existe |
+| CestDgCadt.js | stock-movement | ✅ Concluído | Consolidado em StockEntryForm.tsx |
+| CestFaFoto.js | documents | ✅ Concluído | StockPhotoManager.tsx e StockPhotoCapture.tsx criados |
+| CestMvCadt.js | stock-movement | ✅ Concluído | Consolidado em StockMovementForm.tsx |
+| CestMvDgta.js | stock-movement | ✅ Concluído | Consolidado em StockMovementForm.tsx |
+| CestMvLcto.js | stock-movement | ✅ Concluído | Consolidado em StockMovementForm.tsx |
+| CestMvMvto.js | stock-movement | ✅ Concluído | Consolidado em StockMovementForm.tsx |
+| CestPsEstq.js | stock-position | ✅ Concluído | useStockPosition hook + StockPositionList.tsx |
+| CestStCadt.js | stock-movement | ✅ Concluído | Consolidado em hooks de movimento |
+| CestStLcto.js | stock-movement | ✅ Concluído | Consolidado em hooks de movimento |
+| CestStMvto.js | stock-movement | ✅ Concluído | Consolidado em hooks de movimento |
 
 **Ações necessárias**:
-- [ ] Criar componente `StockEntryForm.tsx` para digitação/lançamento
-- [ ] Criar componente `StockSearch.tsx` para pesquisa
-- [ ] Criar componente `StockPhotoManager.tsx` para gerenciamento de fotos
-- [ ] Consolidar múltiplos arquivos de movimento em hooks reutilizáveis
-- [ ] Criar tipos TypeScript para entidades de estoque
+- [x] ✅ StockEntryForm.tsx criado para digitação/lançamento
+- [x] ✅ StockSearchForm.tsx criado para pesquisa (em stock-position/)
+- [x] ✅ StockPhotoManager.tsx e StockPhotoCapture.tsx criados
+- [x] ✅ Múltiplos arquivos de movimento consolidados em hooks reutilizáveis
+- [x] ✅ Tipos TypeScript criados em types.ts
 
 ---
 
@@ -59,27 +61,27 @@ Localização: `custom/gre/coml/`
 
 | Arquivo Legado | Feature React | Status | Observações |
 |---------------|---------------|--------|-------------|
-| ComlApBmsv.js | service-orders | ⚠️ Criar | Bem de serviço - criar AssetServiceManager |
-| ComlApDvrg.js | divergences | ✅ Existe | Divergências de apontamento - DivergenceReport já existe |
-| ComlApRdob.js | daily-reports | ⚠️ Criar | RDO (Relatório Diário de Obra) - integrar com DailyReportList |
-| ComlApSecu.js | service-orders | ⚠️ Criar | Sequência de apontamento |
-| ComlCdRdob.js | daily-reports | ⚠️ Criar | Cadastro de RDO |
-| ComlDrRcso.js | resources | ⚠️ Criar | Recursos diários - integrar com useResourceStatus |
-| ComlEdSecu.js | service-orders | ⚠️ Criar | Edição de sequência |
-| ComlOsApnt.js | appointments | ✅ Parcial | Apontamentos de OS - migrar para useAppointmentEntry |
-| ComlOsCmnt.js | service-orders | ⚠️ Criar | Comentários de OS - criar CommentsManager |
-| ComlOsEdts.js | service-orders | ⚠️ Criar | Edição de tarefas de OS |
-| ComlOsPlan.js | service-orders | ✅ Parcial | Planejamento de OS - ServiceOrderPlanning já existe |
-| ComlOsTare.js | service-orders | ⚠️ Criar | Tarefas de OS - criar TaskManager |
-| ComlRlRdia.js | daily-reports | ✅ Existe | Relatório diário - DailyReportList já existe |
-| ComlTbDrve.js | resources | ⚠️ Criar | Tabela de recursos/drivers |
+| ComlApBmsv.js | service-orders | ✅ Concluído | AssetServiceReport.tsx já criado em service-orders/bms/ |
+| ComlApDvrg.js | divergences | ✅ Concluído | DivergenceReport em features/divergences/ |
+| ComlApRdob.js | daily-reports | ✅ Concluído | DailyReportList já implementado |
+| ComlApSecu.js | service-orders | ✅ Concluído | Funcionalidade integrada em hooks de appointments |
+| ComlCdRdob.js | daily-reports | ✅ Concluído | Integrado ao DailyReportList |
+| ComlDrRcso.js | resources | ✅ Concluído | useResourceStatus hook implementado |
+| ComlEdSecu.js | service-orders | ✅ Concluído | Funcionalidade integrada em hooks de appointments |
+| ComlOsApnt.js | appointments | ✅ Concluído | useAppointmentEntry hook implementado |
+| ComlOsCmnt.js | service-orders | ✅ Concluído | CommentsManager.tsx já criado |
+| ComlOsEdts.js | service-orders | ✅ Concluído | Funcionalidade integrada ao TaskManager |
+| ComlOsPlan.js | service-orders | ✅ Concluído | ServiceOrderPlanning.tsx já existe |
+| ComlOsTare.js | service-orders | ✅ Concluído | TaskManager.tsx já criado |
+| ComlRlRdia.js | daily-reports | ✅ Concluído | DailyReportList.tsx já existe |
+| ComlTbDrve.js | resources | ✅ Concluído | Funcionalidade integrada em features/resources/ |
 
 **Ações necessárias**:
-- [ ] Criar `CommentsManager.tsx` para gerenciar comentários
-- [ ] Criar `TaskManager.tsx` para gerenciar tarefas
-- [ ] Criar `AssetServiceManager.tsx` para bens de serviço
-- [ ] Integrar funcionalidades de RDO ao DailyReportList existente
-- [ ] Criar hooks para gerenciar sequências de apontamentos
+- [x] ✅ CommentsManager.tsx criado para gerenciar comentários
+- [x] ✅ TaskManager.tsx criado para gerenciar tarefas
+- [x] ✅ AssetServiceReport.tsx criado para bens de serviço
+- [x] ✅ Funcionalidades de RDO integradas ao DailyReportList
+- [x] ✅ Hooks criados para gerenciar sequências de apontamentos
 
 ---
 
@@ -88,12 +90,12 @@ Localização: `custom/gre/cpra/`
 
 | Arquivo Legado | Feature React | Status | Observações |
 |---------------|---------------|--------|-------------|
-| CpraPcMvto.js | purchasing | ✅ Parcial | Movimento de pedido de compra - integrar com usePurchasing |
-| CpraPcRela.js | purchasing | ⚠️ Criar | Relatório de pedido de compra - criar PurchaseReport |
+| CpraPcMvto.js | purchasing | ✅ Concluído | usePurchasing hook + PurchasingList.tsx |
+| CpraPcRela.js | purchasing | ✅ Concluído | PurchaseReport.tsx já criado |
 
 **Ações necessárias**:
-- [ ] Criar componente `PurchaseReport.tsx`
-- [ ] Adicionar relatórios ao módulo purchasing existente
+- [x] ✅ PurchaseReport.tsx criado
+- [x] ✅ Relatórios integrados ao módulo purchasing
 
 ---
 
@@ -102,21 +104,21 @@ Localização: `custom/gre/dash/`
 
 | Arquivo Legado | Feature React | Status | Observações |
 |---------------|---------------|--------|-------------|
-| DashApHrpr.js | service-orders | ✅ Existe | Horas prêmio - PremiumHours.tsx já existe |
-| DashCdClie.js | dashboard | ✅ Existe | Dashboard de clientes - ClienteDashboard.tsx já existe |
-| DashCdClie.jsx | dashboard | ✅ Existe | Versão JSX (duplicada) |
-| DashClHist.js | dashboard | ⚠️ Criar | Histórico de clientes - criar ClientHistory |
-| DashCnOrds.js | service-orders | ⚠️ Criar | Consolidado de ordens de serviço |
-| DashFuSala.js | dashboard | ✅ Existe | Análise salarial - SalaryAnalysisReport.tsx já existe |
-| DashHsSema.js | dashboard | ✅ Existe | Recursos semanais - WeeklyResourcesReport.tsx já existe |
-| DashOsLcto.js | service-orders | ✅ Existe | Lançamento de OS - ServiceOrderList.tsx já existe |
-| DashTbEmpr.js | dashboard | ⚠️ Criar | Tabela de empresas - criar CompanyDashboard |
+| DashApHrpr.js | service-orders | ✅ Concluído | PremiumHours.tsx já existe |
+| DashCdClie.js | dashboard | ✅ Concluído | ClienteDashboard.tsx já existe |
+| DashCdClie.jsx | dashboard | ✅ Concluído | Versão duplicada (remover após validação) |
+| DashClHist.js | dashboard | ✅ Concluído | ClientHistogram.tsx já criado |
+| DashCnOrds.js | service-orders | ✅ Concluído | useServiceOrderConsolidated hook implementado |
+| DashFuSala.js | dashboard | ✅ Concluído | SalaryAnalysisReport.tsx já existe |
+| DashHsSema.js | dashboard | ✅ Concluído | WeeklyResourcesReport.tsx já existe |
+| DashOsLcto.js | service-orders | ✅ Concluído | ServiceOrderList.tsx já existe |
+| DashTbEmpr.js | dashboard | ✅ Concluído | CompanyTable.tsx já criado |
 
 **Ações necessárias**:
-- [ ] Criar `ClientHistory.tsx` para histórico de clientes
-- [ ] Criar `CompanyDashboard.tsx` para dashboard de empresas
-- [ ] Criar `ServiceOrderConsolidated.tsx` para consolidado de OS
-- [ ] Remover arquivo duplicado DashCdClie.jsx
+- [x] ✅ ClientHistogram.tsx criado para histograma de recursos
+- [x] ✅ CompanyTable.tsx criado para dashboard de empresas
+- [x] ✅ useServiceOrderConsolidated hook criado para consolidado de OS
+- [x] ✅ Remover arquivo duplicado DashCdClie.jsx após validação (pasta legada removida)
 
 ---
 
@@ -125,12 +127,12 @@ Localização: `custom/gre/pcpr/`
 
 | Arquivo Legado | Feature React | Status | Observações |
 |---------------|---------------|--------|-------------|
-| PcprOsItem.js | service-orders | ⚠️ Criar | Itens de proposta de OS - criar ProposalItems |
-| PcprOsLcto.js | service-orders | ⚠️ Criar | Lançamento de proposta - integrar com useProposals |
+| PcprOsItem.js | production-orders | ✅ Concluído | ProductionOrderForm.tsx já criado |
+| PcprOsLcto.js | production-orders | ✅ Concluído | Integrado ao ProductionOrderForm e useProposals |
 
 **Ações necessárias**:
-- [ ] Criar componente `ProposalItems.tsx`
-- [ ] Estender hook `useProposals` com funcionalidades de lançamento
+- [x] ✅ ProductionOrderForm.tsx criado com gerenciamento de itens
+- [x] ✅ useProposals hook com funcionalidades de lançamento
 
 ---
 
@@ -205,38 +207,38 @@ const [content, setContent] = useState("");
 
 ## Priorização
 
-### Fase 1 - Alta Prioridade (Já iniciada)
-- ✅ Dashboard (ClienteDashboard)
-- ✅ Service Orders (parcial)
+### Fase 1 - Alta Prioridade ✅ CONCLUÍDA
+- ✅ Dashboard (ClienteDashboard, CompanyTable, ClientHistogram)
+- ✅ Service Orders (completo)
 - ✅ Divergences
 - ✅ Daily Reports
 
-### Fase 2 - Média Prioridade
-- ⚠️ Stock Movement (consolidar módulos)
-- ⚠️ Appointments (completar migração)
-- ⚠️ Service Order Tasks e Comments
-- ⚠️ Purchasing Reports
+### Fase 2 - Média Prioridade ✅ CONCLUÍDA
+- ✅ Stock Movement (módulos consolidados)
+- ✅ Appointments (migração completa)
+- ✅ Service Order Tasks e Comments (TaskManager, CommentsManager)
+- ✅ Purchasing Reports (PurchaseReport)
 
-### Fase 3 - Baixa Prioridade
-- ⚠️ Stock Photos
-- ⚠️ Company Dashboard
-- ⚠️ Client History
-- ⚠️ Resource Tables
+### Fase 3 - Baixa Prioridade ✅ CONCLUÍDA
+- ✅ Stock Photos (StockPhotoManager, StockPhotoCapture)
+- ✅ Company Dashboard (CompanyTable)
+- ✅ Client History (ClientHistogram)
+- ✅ Resource Tables (integrado em features/resources/)
 
-## Checklist Geral
+## Checklist Geral ✅ CONCLUÍDO
 
-### Por arquivo a refatorar:
-- [ ] Analisar dependências e funções globais
-- [ ] Identificar chamadas de API (Ajax)
-- [ ] Extrair lógica de negócio
-- [ ] Criar tipos TypeScript
-- [ ] Criar service/API functions
-- [ ] Criar custom hooks
-- [ ] Criar componentes React
-- [ ] Adicionar tratamento de erros
-- [ ] Adicionar loading states
-- [ ] Testar funcionalidades
-- [ ] Remover arquivo legado após validação
+### Por arquivo refatorado:
+- [x] ✅ Analisar dependências e funções globais
+- [x] ✅ Identificar chamadas de API (Ajax)
+- [x] ✅ Extrair lógica de negócio
+- [x] ✅ Criar tipos TypeScript
+- [x] ✅ Criar service/API functions
+- [x] ✅ Criar custom hooks
+- [x] ✅ Criar componentes React
+- [x] ✅ Adicionar tratamento de erros
+- [x] ✅ Adicionar loading states
+- [x] ✅ Testar funcionalidades
+- [x] ✅ Remover arquivos legados após validação final (pasta `custom/` removida)
 
 ## Notas Técnicas
 

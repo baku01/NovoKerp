@@ -1,46 +1,39 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { format } from 'date-fns';
-import { useDashboardData } from '../dashboard/useDashboardData';
-import { useServiceOrderList } from './useServiceOrderList';
-import { useServiceOrderConsolidated } from './useServiceOrderConsolidated';
-import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
-import { Button } from '../../components/ui/Button';
-import { brDecimal } from '../../utils/formatters';
+import React, { useMemo, useState } from "react";
+import { format } from "date-fns";
+import { useDashboardData } from "../dashboard/useDashboardData";
+import { useServiceOrderList } from "./useServiceOrderList";
+import { useServiceOrderConsolidated } from "./useServiceOrderConsolidated";
+import { Input } from "../../components/ui/Input";
+import { Select } from "../../components/ui/Select";
+import { Button } from "../../components/ui/Button";
+import { brDecimal } from "../../utils/formatters";
 
 export const ServiceOrderConsolidated: React.FC = () => {
     const [date, setDate] = useState(new Date());
-    const [selectedWorksite, setSelectedWorksite] = useState<number>(0);
-    const [selectedOrder, setSelectedOrder] = useState<number>(0);
-    const [hoursBase, setHoursBase] = useState<'planned' | 'budget'>('planned');
+    const [selectedWorksite, setSelectedWorksite] = useState<number | null>(null);
+    const [worksiteTouched, setWorksiteTouched] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
+    const [orderTouched, setOrderTouched] = useState(false);
+    const [hoursBase, setHoursBase] = useState<"planned" | "budget">("planned");
 
     const { obras, isLoading: loadingObras } = useDashboardData(date);
+    const defaultWorksiteId = obras[0]?.id_clie ?? 0;
+    const activeWorksiteId = worksiteTouched ? selectedWorksite || 0 : defaultWorksiteId;
 
-    useEffect(() => {
-        if (!selectedWorksite && obras.length > 0) {
-            setSelectedWorksite(obras[0].id_clie);
-        }
-    }, [obras, selectedWorksite]);
+    const { orders, isLoading: loadingOrders, summary } = useServiceOrderList(activeWorksiteId, date);
 
-    const { orders, isLoading: loadingOrders, summary } = useServiceOrderList(selectedWorksite, date);
-
-    useEffect(() => {
-        if (orders.length > 0) {
-            setSelectedOrder(orders[0].id_ords);
-        } else {
-            setSelectedOrder(0);
-        }
-    }, [orders, selectedWorksite]);
+    const defaultOrderId = orders[0]?.id_ords ?? 0;
+    const activeOrderId = orderTouched ? selectedOrder || 0 : defaultOrderId;
 
     const { plannedActual, situations, detail, isLoading, refetch } = useServiceOrderConsolidated(
-        selectedWorksite,
-        selectedOrder,
-        date
+        activeWorksiteId,
+        activeOrderId,
+        date,
     );
 
     const plannedCards = useMemo(() => {
         const plannedOrBudget = (planned?: number, budget?: number) =>
-            hoursBase === 'planned' ? planned || 0 : budget || planned || 0;
+            hoursBase === "planned" ? planned || 0 : budget || planned || 0;
 
         const totalPlanned =
             plannedOrBudget(plannedActual?.os_mdpl, plannedActual?.mp_qthr) +
@@ -48,24 +41,22 @@ export const ServiceOrderConsolidated: React.FC = () => {
             plannedOrBudget(plannedActual?.os_eqpl, plannedActual?.eq_qthr);
 
         const totalActual =
-            (plannedActual?.fu_hamd || 0) +
-            (plannedActual?.fu_hami || 0) +
-            (plannedActual?.eq_hrap || 0);
+            (plannedActual?.fu_hamd || 0) + (plannedActual?.fu_hami || 0) + (plannedActual?.eq_hrap || 0);
 
         return {
             rows: [
                 {
-                    label: 'Mão de Obra',
+                    label: "Mão de Obra",
                     planned: plannedOrBudget(plannedActual?.os_mdpl, plannedActual?.mp_qthr),
                     actual: plannedActual?.fu_hamd || 0,
                 },
                 {
-                    label: 'Montagem/Instalação',
+                    label: "Montagem/Instalação",
                     planned: plannedOrBudget(plannedActual?.os_mipl, plannedActual?.mi_qthr),
                     actual: plannedActual?.fu_hami || 0,
                 },
                 {
-                    label: 'Equipamentos',
+                    label: "Equipamentos",
                     planned: plannedOrBudget(plannedActual?.os_eqpl, plannedActual?.eq_qthr),
                     actual: plannedActual?.eq_hrap || 0,
                 },
@@ -80,15 +71,15 @@ export const ServiceOrderConsolidated: React.FC = () => {
     const orderTypeLabel = useMemo(() => {
         switch (detail?.os_tipo) {
             case 1:
-                return 'EMPREITA';
+                return "EMPREITA";
             case 2:
-                return 'HORA HOMEM';
+                return "HORA HOMEM";
             case 3:
-                return 'LOCAÇÃO';
+                return "LOCAÇÃO";
             case 4:
-                return 'PRODUTO';
+                return "PRODUTO";
             default:
-                return 'N/D';
+                return "N/D";
         }
     }, [detail?.os_tipo]);
 
@@ -108,10 +99,10 @@ export const ServiceOrderConsolidated: React.FC = () => {
                     <Input
                         type="date"
                         label="Data de referência"
-                        value={format(date, 'yyyy-MM-dd')}
+                        value={format(date, "yyyy-MM-dd")}
                         onChange={(e) => {
                             if (e.target.value) {
-                                const [y, m, d] = e.target.value.split('-').map(Number);
+                                const [y, m, d] = e.target.value.split("-").map(Number);
                                 setDate(new Date(y, m - 1, d));
                             }
                         }}
@@ -119,11 +110,17 @@ export const ServiceOrderConsolidated: React.FC = () => {
                     />
                     <Select
                         label="Obra"
-                        value={selectedWorksite ? selectedWorksite.toString() : ''}
-                        onChange={(e) => setSelectedWorksite(parseInt(e.target.value) || 0)}
+                        value={activeWorksiteId ? activeWorksiteId.toString() : ""}
+                        onChange={(e) => {
+                            const parsed = parseInt(e.target.value) || 0;
+                            setWorksiteTouched(true);
+                            setSelectedWorksite(parsed);
+                            setOrderTouched(false);
+                            setSelectedOrder(null);
+                        }}
                         disabled={loadingObras}
                         options={[
-                            { value: '', label: loadingObras ? 'Carregando obras...' : 'Selecione' },
+                            { value: "", label: loadingObras ? "Carregando obras..." : "Selecione" },
                             ...obras.map((obra) => ({
                                 value: obra.id_clie.toString(),
                                 label: `${obra.cl_fant} (${obra.id_clie})`,
@@ -133,13 +130,16 @@ export const ServiceOrderConsolidated: React.FC = () => {
                     />
                     <Select
                         label="O.S."
-                        value={selectedOrder ? selectedOrder.toString() : ''}
-                        onChange={(e) => setSelectedOrder(parseInt(e.target.value) || 0)}
-                        disabled={loadingOrders || !selectedWorksite}
+                        value={activeOrderId ? activeOrderId.toString() : ""}
+                        onChange={(e) => {
+                            setOrderTouched(true);
+                            setSelectedOrder(parseInt(e.target.value) || 0);
+                        }}
+                        disabled={loadingOrders || !activeWorksiteId}
                         options={[
                             {
-                                value: '',
-                                label: loadingOrders ? 'Carregando OS...' : 'Selecione',
+                                value: "",
+                                label: loadingOrders ? "Carregando OS..." : "Selecione",
                             },
                             ...orders.map((order) => ({
                                 value: order.id_ords.toString(),
@@ -151,14 +151,14 @@ export const ServiceOrderConsolidated: React.FC = () => {
                     <Select
                         label="Base de Horas"
                         value={hoursBase}
-                        onChange={(e) => setHoursBase((e.target.value as 'planned' | 'budget') || 'planned')}
+                        onChange={(e) => setHoursBase((e.target.value as "planned" | "budget") || "planned")}
                         options={[
-                            { value: 'planned', label: 'Planejadas' },
-                            { value: 'budget', label: 'Orçadas' },
+                            { value: "planned", label: "Planejadas" },
+                            { value: "budget", label: "Orçadas" },
                         ]}
                         className="min-w-[160px]"
                     />
-                    <Button type="button" onClick={() => refetch()} disabled={isLoading || !selectedOrder}>
+                    <Button type="button" onClick={() => refetch()} disabled={isLoading || !activeOrderId}>
                         Atualizar
                     </Button>
                 </div>
@@ -169,7 +169,7 @@ export const ServiceOrderConsolidated: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-semibold">Horas Planejadas x Apontadas</h2>
                         <span className="text-sm text-slate-300">
-                            Base: {hoursBase === 'planned' ? 'Planejada (OS)' : 'Orçada (OC)'}
+                            Base: {hoursBase === "planned" ? "Planejada (OS)" : "Orçada (OC)"}
                         </span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -199,9 +199,7 @@ export const ServiceOrderConsolidated: React.FC = () => {
                         <div className="text-right">
                             <div className="text-slate-300 text-sm">Total Planejado</div>
                             <div className="text-2xl font-semibold">{brDecimal(plannedCards.totalPlanned)} h</div>
-                            <div className="text-emerald-400 text-sm mt-1">
-                                Progresso: {brDecimal(completion)}%
-                            </div>
+                            <div className="text-emerald-400 text-sm mt-1">Progresso: {brDecimal(completion)}%</div>
                         </div>
                     </div>
                 </div>
@@ -216,7 +214,8 @@ export const ServiceOrderConsolidated: React.FC = () => {
                             <p className="text-slate-400 text-sm">Nenhuma situação encontrada para a OS selecionada.</p>
                         ) : (
                             situations.map((situation) => {
-                                const pct = statusTotal > 0 ? Math.min(100, (situation.re_hrap / statusTotal) * 100) : 0;
+                                const pct =
+                                    statusTotal > 0 ? Math.min(100, (situation.re_hrap / statusTotal) * 100) : 0;
                                 return (
                                     <div key={situation.sr_deno} className="space-y-1">
                                         <div className="flex items-center justify-between text-sm">
