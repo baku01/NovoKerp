@@ -1,15 +1,17 @@
-import { forwardRef } from 'react';
-import type { InputHTMLAttributes } from 'react';
-import type { FieldError } from 'react-hook-form';
+import { forwardRef } from "react";
+import type { InputHTMLAttributes } from "react";
+import type { FieldError } from "react-hook-form";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
-    error?: FieldError;
+    error?: FieldError | string;
     helperText?: string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ label, error, helperText, className = '', ...props }, ref) => {
+    ({ label, error, helperText, className = "", ...props }, ref) => {
+        const errorMessage = typeof error === "string" ? error : error?.message;
+
         return (
             <div className="w-full">
                 {label && (
@@ -24,20 +26,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             w-full px-3 py-2 border rounded-lg
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
             disabled:bg-slate-100 disabled:cursor-not-allowed
-            ${error ? 'border-red-500' : 'border-slate-300'}
+            ${error ? "border-red-500" : "border-slate-300"}
             ${className}
           `}
                     {...props}
                 />
-                {error && (
-                    <p className="mt-1 text-sm text-red-600">{error.message}</p>
-                )}
-                {helperText && !error && (
-                    <p className="mt-1 text-sm text-slate-500">{helperText}</p>
-                )}
+                {errorMessage && <p className="mt-1 text-sm text-red-600">{errorMessage}</p>}
+                {helperText && !error && <p className="mt-1 text-sm text-slate-500">{helperText}</p>}
             </div>
         );
-    }
+    },
 );
 
-Input.displayName = 'Input';
+Input.displayName = "Input";
